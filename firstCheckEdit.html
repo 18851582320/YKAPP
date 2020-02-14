@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body class="">
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">首检明细</h1>
+		</header>
+		
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<form class="mui-input-group">
+							<div class="mui-input-row">
+								<label>检验类型：</label>
+								<input type="text" id="checkTypeName" readonly="readonly" placeholder="">
+								<input type="hidden" id="processCheckListId" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>派工单号：</label>
+								<input type="text" id="psCode" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>机&nbsp;&nbsp;台&nbsp;&nbsp;号：</label>
+								<input type="text" id="stationName" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>工&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;序：</label>
+								<input type="text" id="processName"  readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>工序计划号：</label>
+								<input type="text" id="pPlanCode" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>物料名称：</label>
+								<input type="text" id="goodsName" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>检验人员：</label>
+								<input type="hidden" id="checkUser"  placeholder="">
+								<input type="text" id="checkUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>抽检总数</label>
+								<div class="mui-numbox" data-numbox-min='1' data-numbox-max='1' style="width: 150px;">
+									<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
+									<input class="mui-input-numbox"  id="checkNum" type="number" />
+									<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+								</div>
+							</div>
+							<div class="mui-input-row">
+								<label>不合格数</label>
+								<div class="mui-numbox" data-numbox-min='0' style="width: 150px;">
+									<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
+									<input class="mui-input-numbox" id="badNum" type="number" />
+									<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+								</div>
+							</div>
+							<div class="mui-input-row">
+								<label>检验结果：</label>
+								<select id="checkState" class="mui-btn-block" style="">
+									<option value='合格'>合格</option>
+									<option value='不合格'>不合格</option>
+								</select>
+							</div>
+							<h5 class="mui-content-padded">&nbsp;&nbsp;缺陷：</h5>
+							<div id="badType">
+								
+							</div>
+							<div id="checkItem">
+									
+							</div>
+							<div class="mui-input-row" style="text-align: left;">
+								<label>附&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;件：</label>
+								<span class="mui-icon mui-icon-image" onclick="appendByGallery()"></span>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<span class="mui-icon mui-icon-camera" onclick="appendByCamera()"></span>
+							</div>
+						</form>
+						<div class="mui-input-row">
+							<ul id="files" style="text-align:left;">
+								<p id="empty" style="font-size:12px;color:#C6C6C6;">无上传文件</p>
+							</ul>
+						</div>
+						<div class="mui-input-row" style="margin: 10px 5px;">
+							&nbsp;&nbsp;&nbsp;备注：
+							<textarea id="memo" rows="2" placeholder=""></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="expenseContent">	
+			</div>			
+			<div class="mui-button-row" id="saveBtn" style="margin-bottom: 10px;margin-top: 20px;">
+				<!-- <button class='mui-btn mui-btn-primary mui-icon iconfont icon-fabu5' type='button' onclick='save()'>&nbsp;保存</button> -->
+			</div>			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var files=[];
+			var codeRuleState="";
+			var num=0;
+			var clSize=0;
+			var fySize=0;
+			mui.init({
+				
+			});
+			mui.plusReady(function () {
+				initWorkInfo();//加载单据表头信息
+				//initBadType();//加载单据表体信息	
+				initCurUser();
+				initBody();//加载单据表体信息				
+			});
+			
+			//初始化表头信息
+			function initWorkInfo(){				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				var isCheck=currentWebView.isCheck;
+				document.getElementById("processCheckListId").value=processCheckListId;
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var infoUrl=mesUrl+"processCheckListFindById.do";
+				mui.ajax(infoUrl,{
+					data:{STAFF_ID:staffId,processCheckListId:processCheckListId},
+					type:"post",
+					success:function(data){
+						var obj=JSON.parse(data);
+						document.getElementById("checkTypeName").value=obj.checkTypeName;
+						document.getElementById("psCode").value=obj.psCode;
+						document.getElementById("stationName").value=obj.stationName;
+						document.getElementById("processName").value=obj.processName;
+						document.getElementById("pPlanCode").value=obj.pPlanCode;
+						document.getElementById("goodsName").value=obj.goodsName;
+						document.getElementById("checkNum").value=obj.checkNum;
+						document.getElementById("badNum").value= obj.badNum.substring("0","1");
+						if(isCheck=="1"){
+							document.getElementById("saveBtn").innerHTML=
+								"<button class='mui-btn mui-btn-success mui-icon iconfont icon-fujian' type='button' onclick='file()'>&nbsp;附件</button>";
+						}else if(isCheck=="0"){
+							document.getElementById("saveBtn").innerHTML=
+								"<button class='mui-btn mui-btn-primary mui-icon iconfont icon-fabu5' type='button' onclick='save()'>&nbsp;保存</button>";
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			//初始化表体信息
+			function initBody(){
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var infoUrl=mesUrl+"processCheckListListAll.do";
+				mui.ajax(infoUrl,{
+					data:{STAFF_ID:staffId,processCheckListId:processCheckListId},
+					type:"post",
+					success:function(data){
+					if(data){
+						var carHtml="";
+						var data=JSON.parse(data);
+							mui.each(data.rows,function (index,obj) {
+								var checkValue1=(obj.checkValue1 == null) ? "" : obj.checkValue1;
+								var checkValue2=(obj.checkValue1 == null) ? "" : obj.checkValue2;
+								var checkValue3=(obj.checkValue3 == null) ? "" : obj.checkValue3;
+								var checkValue4=(obj.checkValue4 == null) ? "" : obj.checkValue4;
+								var checkValue5=(obj.checkValue5 == null) ? "" : obj.checkValue5;
+								var carDiv = document.createElement('div');
+								carDiv.className="mui-input-row";
+								carHtml=carHtml+'<h5 style="font-size: 14px;">&nbsp;&nbsp;&nbsp;&nbsp;'+obj.checkItem+'下限值：'+obj.standardValue.substring("0","5")+'上限值：'+obj.upperLimit.substring("0","5")+'标准值：'+obj.lowerLimit.substring("0","5")+'</h5>'
+								+'<div class="mui-input-row">'
+								+'<input type="hidden" name="processCheckItemId" value="'+obj.processCheckItemId+'">'
+								+'&nbsp;<input name="'+obj.processCheckItemId+'" value="'+checkValue1+'" type="number" placeholder="实测值1" style="width: 102px;height: 35px;">'
+								+'&nbsp;<input name="'+obj.processCheckItemId+'" value="'+checkValue2+'" type="number" placeholder="实测值2" style="width: 102px;height: 35px;">'
+								+'&nbsp;<input name="'+obj.processCheckItemId+'" value="'+checkValue3+'" type="number" placeholder="实测值3" style="width: 102px;height: 35px;">'
+								+'&nbsp;<input name="'+obj.processCheckItemId+'" value="'+checkValue4+'" type="number" placeholder="实测值4" style="width: 102px;height: 35px;">'
+								+'&nbsp;<input name="'+obj.processCheckItemId+'" value="'+checkValue5+'" type="number" placeholder="实测值5" style="width: 102px;height: 35px;">'
+								+'</div>';								
+							});
+							var endHtml='<div class="mui-input-row" style="height: 5px;"></div>';
+							carHtml=carHtml+endHtml;
+							document.getElementById('checkItem').innerHTML=carHtml;
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			
+			//初始化表体信息
+			function initBody1(){
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var infoUrl=mesUrl+"processCheckListListAll.do";
+				mui.ajax(infoUrl,{
+					data:{STAFF_ID:staffId,processCheckListId:processCheckListId},
+					type:"post",
+					success:function(data){
+					if(data){
+						var data=JSON.parse(data);
+							mui.each(data.rows,function (index,obj) {
+								var carDiv = document.createElement('div');
+								carDiv.className="mui-card";
+								var checkValue=(obj.checkValue == null) ? "" : obj.checkValue;
+								var checkMemo=(obj.checkMemo == null) ? "" : obj.checkMemo;
+								var carHtml="";
+								carHtml='<div class="mui-card-header" style="font-size: 12px;color: #02a684;">检验项目明细（'+(index+1)+'）</div>'+
+									'<div class="mui-card-content">'+
+										'<div class="mui-card-content-inner">'+
+											'<form class="mui-input-group">'+
+												'<div class="mui-input-row" >'
+													+"&nbsp;&nbsp;&nbsp;&nbsp;检验项目：（"+obj.checkItem+"），分析方法：（"+obj.analysisMethod+"），检验标准：（"+obj.checkStandard
+													+"）<br>&nbsp;&nbsp;&nbsp;&nbsp;标&nbsp;&nbsp;准&nbsp;&nbsp;值：（"+obj.standardValue+"），检验方法：（"+obj.checkMethod+"），检验工具：（"+obj.checkTool+"）"+
+												'</div>'+
+												'<div class="mui-input-row">'+
+													'<label>实&nbsp;&nbsp;际&nbsp;&nbsp;值：</label>'+
+													'<input type="text" name="checkValue" value="'+checkValue+'" placeholder="请输入实际值">'+
+												'</div>'+
+												'<div class="mui-input-row" style="height: 10px;">'+
+													'<input type="hidden" name="processCheckItemId" value="'+obj.processCheckItemId+'" placeholder="">'+
+												'</div>'+
+											'</form>'+
+											'<div class="mui-input-row" style="margin: px 5px;">'+
+												'&nbsp;&nbsp;&nbsp;明细备注：'+
+												'<textarea name="checkMemo" rows="1"  placeholder="">'+checkMemo+'</textarea>'+
+											'</div>'+
+										'</div>'+
+									'</div>';
+									//console.log(carHtml);
+								carDiv.innerHTML=carHtml;
+								document.getElementById("expenseContent").appendChild(carDiv);
+								});
+						}
+
+			
+						
+			
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+
+
+			//初始化表体信息
+			function initBadType(){
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var infoUrl=mesUrl+"listAllDefectType.do";
+				mui.ajax(infoUrl,{
+					data:{STAFF_ID:staffId,processCheckListId:processCheckListId},
+					type:"post",
+					success:function(data){
+						if(data){
+							var data=JSON.parse(data);
+							var badHtml="";
+							var badDiv = document.createElement('div');
+							badDiv.className="mui-input-row";
+							mui.each(data.rows,function (index,obj) {
+								var defectNum="0";
+								mui.each(data.defect,function (index,obj2) {
+									if(obj.defectTypeId==obj2.defectTypeId){defectNum=obj2.defectNum;};
+									
+								});
+									badHtml=badHtml+'<div class="mui-input-row"><label>'+obj.defectTypeName+'</label>'+
+									'<div class="mui-numbox" data-numbox-min="0">'+
+									'<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>'+
+									'<input class="mui-input-numbox" type="number" name="numbox" value="'+defectNum+'"/>'+
+									'<input type="hidden" name="defectTypeId" value="'+obj.defectTypeId+'">'+
+									'<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>'+
+									'</div></div>';
+									});
+									var endHtml='<div class="mui-input-row"></div>'
+									badHtml=badHtml+endHtml;
+									//console.log(badHtml);
+									document.getElementById('badType').innerHTML=badHtml;
+									mui('.mui-numbox').numbox();
+							}
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+					
+			function initCurUser(){				
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;
+				var loginname=state.loginname;
+				document.getElementById("checkUser").value=STAFF_ID;
+				document.getElementById("checkUserName").value=loginname;
+			}
+			//文件查看
+			function file(){
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				mui.openWindow({
+					url:"appFile.html",
+					id:"appFile.html",
+					extras:{
+						tableKeyValue:processCheckListId,
+						tableName:"ZL_processCheckList"
+					}
+				});
+			}
+			
+			//复选框的值
+			function getCheckBoxRes(className){
+				var rdsObj = document.getElementsByClassName(className);
+				var checkVal = new Array();
+				var returnStr="";
+				var k  = 0;
+				for(i = 0; i < rdsObj.length; i++){
+					if(rdsObj[i].checked){
+						if(k==0){
+							returnStr=rdsObj[i].value;
+						}else{
+							returnStr=returnStr+"@@@@@@######"+rdsObj[i].value;
+						}
+						k++;
+					}
+				}
+				 return returnStr;
+			}
+			
+
+			
+			//保存
+			function save(){
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var saveSendUrl=mesUrl+"processCheckSave.do";
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;
+				var processCheckListId=document.getElementById("processCheckListId").value;
+				var checkState=document.getElementById("checkState").value;
+				var checkUser=document.getElementById("checkUser").value;
+				var checkNum=document.getElementById("checkNum").value;
+				var badNum=document.getElementById("badNum").value;
+				//检验明细
+				var processCheckItemIdArr=document.getElementsByName("processCheckItemId");
+				//缺陷明细
+				var numboxValueArr=document.getElementsByName("numbox");
+				var numboxIdArr=document.getElementsByName("defectTypeId");
+				
+				
+				var processCheckItemIdStr="";
+				var checkValueStr1="";//实测值1
+				var checkValueStr2="";
+				var checkValueStr3="";
+				var checkValueStr4="";
+				var checkValueStr5="";
+				var checkValueStr="";
+				var checkMemoStr="";
+				var numboxValueStr="";//缺陷数量
+				var numboxIdStr="";//缺陷id
+				for(var i=0;i<processCheckItemIdArr.length;i++){
+
+					//明细表id
+					if(processCheckItemIdStr==""){
+						processCheckItemIdStr=processCheckItemIdArr[i].value;
+					}else{
+						processCheckItemIdStr=processCheckItemIdStr+"@@@@@@######"+processCheckItemIdArr[i].value;
+					}
+					
+					var checkValueArr=document.getElementsByName(processCheckItemIdArr[i].value);
+					if(checkValueStr1==""){
+						checkValueStr1=checkValueArr[0].value==""?"0":checkValueArr[0].value;
+					}else{
+						checkValueStr1=checkValueStr1+"@@@@@@######"+(checkValueArr[0].value==""?"0":checkValueArr[0].value);
+					}
+					if(checkValueStr2==""){
+						checkValueStr2=checkValueArr[1].value==""?"0":checkValueArr[1].value;
+					}else{
+						checkValueStr2=checkValueStr2+"@@@@@@######"+(checkValueArr[1].value==""?"0":checkValueArr[1].value);
+					}
+					
+ 					if(checkValueStr3==""){
+						checkValueStr3=checkValueArr[2].value==""?"0":checkValueArr[2].value;
+					}else{
+						checkValueStr3=checkValueStr3+"@@@@@@######"+(checkValueArr[2].value==""?"0":checkValueArr[2].value);
+					}
+					if(checkValueStr4==""){
+						checkValueStr4=checkValueArr[3].value==""?"0":checkValueArr[3].value;
+					}else{
+						checkValueStr4=checkValueStr4+"@@@@@@######"+(checkValueArr[3].value==""?"0":checkValueArr[3].value);
+					}
+					
+					if(checkValueStr5==""){
+						checkValueStr5=checkValueArr[4].value==""?"0":checkValueArr[4].value;
+					}else{
+						checkValueStr5=checkValueStr5+"@@@@@@######"+(checkValueArr[4].value==""?"0":checkValueArr[4].value);
+					} 
+						
+				}
+				var wait=plus.nativeUI.showWaiting("处理中，请等待...");
+				var task = plus.uploader.createUpload(saveSendUrl, 
+					{ method:"POST"},
+					function ( t, status ) {
+						// 上传完成
+						if ( status == 200 ) {
+							var rtn=JSON.parse(t.responseText); 
+							if(rtn.result=="success"){
+								wait.close();
+								plus.nativeUI.alert("保存成功！");
+								
+								var wobjMain = plus.webview.getWebviewById("firstCheckNoEnd.html");   
+								wobjMain.reload(true);
+								mui.back();
+							}else{
+								wait.close();
+								plus.nativeUI.alert("保存失败，"+rtn.errmsg);
+							}
+						} else {
+							wait.close();
+							plus.nativeUI.alert("保存失败，"+status);
+						}
+					}
+				);
+				task.addData("STAFF_ID",STAFF_ID);
+				task.addData("processCheckListId",processCheckListId);
+				task.addData("checkUser",checkUser);
+				task.addData("checkState",checkState);
+				task.addData("batchNum",checkNum);
+				task.addData("checkNum",checkNum);
+				task.addData("badNum",badNum);
+				task.addData("checkType","SJ");
+				task.addData("processCheckItemIdStr",processCheckItemIdStr);
+				task.addData("checkValueStr1",checkValueStr1);
+				task.addData("checkValueStr2",checkValueStr2);
+				task.addData("checkValueStr3",checkValueStr3);
+				task.addData("checkValueStr4",checkValueStr4);
+				task.addData("checkValueStr5",checkValueStr5);				
+				task.addData("numboxIdStr",numboxIdStr);
+				task.addData("numboxValueStr",numboxValueStr);
+				for(var i=0;i<files.length;i++){
+					var f=files[i];
+					task.addFile(f.path,{key:f.name});
+				}
+				
+				
+				task.start();
+				
+			}
+			
+			// 从相册添加文件
+			function appendByGallery(){
+				plus.gallery.pick(function(p){
+			        appendFile(p);
+			    });
+			}
+			
+			// 拍照添加文件
+			function appendByCamera(){
+				var cmr = plus.camera.getCamera();
+				var res = cmr.supportedImageResolutions[0];
+				var fmt = cmr.supportedImageFormats[0];
+				cmr.captureImage( function( p ){
+						appendFile(p);
+					},
+					function( error ) {
+						
+					},
+					{resolution:res,format:fmt}
+				);
+				
+				
+			}
+			
+			// 添加文件
+			var index=1;
+			function appendFile(p){
+				var fe=document.getElementById("files");
+				var li=document.createElement("li");
+				var n=p.substr(p.lastIndexOf('/')+1);
+				li.innerText=n;
+				fe.appendChild(li);
+				files.push({name:"uploadkey"+index,path:p});
+				index++;
+				empty.style.display="none";
+			}
+			
+			//点击遮罩
+			function callback(){
+				return false;
+			}
+			
+			
+		</script>
+	</body>
+
+</html>

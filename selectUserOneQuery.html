@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+		</style>
+		
+	</head>
+
+	<body class="">
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">人员选择查询</h1>
+		</header>
+		
+		<div class="mui-content" id="taskContent">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<form class="mui-input-group">
+							<div class="mui-input-row">
+								<label>姓名：</label>
+								<input type="text" id="staffName" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								
+							</div>
+						</form>
+						<div class="mui-button-row" id="saveBtn">
+							<button class='mui-btn mui-btn-primary mui-icon iconfont icon-chaxun' type='button' onclick='saveQuery()'>&nbsp;查询</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+				
+				
+			});
+		
+			
+			function saveQuery(){
+				var staffName= document.getElementById("staffName").value;
+				
+				var currentWebView=plus.webview.currentWebview();
+				var htmlTag=currentWebView.htmlTag;
+				
+				var	queryHtml=plus.webview.getWebviewById(htmlTag+".html");
+				queryHtml.evalJS("setQueryInfo('"+ staffName +"');");
+				mui.back();
+			}
+			
+		</script>
+	</body>
+
+</html>

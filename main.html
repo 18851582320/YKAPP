@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		<style>
+			ul {
+				font-size: 14px;
+				color: #8f8f94;
+			}
+			.mui-btn {
+				padding: 10px;
+			}
+			
+			.mui-bar-tab .mui-tab-item.mui-active {
+				color: #02a684
+			}
+			
+			.mui-bar-tab .mui-tab-item span i {
+				font-size: 19px;
+			}
+		</style>
+	</head>
+
+	<body class="">
+		<header class="mui-bar mui-bar-nav body-header">
+			<h1 id="nav-title"  class="mui-title" style="color: #ffffff;">首页</h1>
+		</header>
+		
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" href="smsIndex.html">
+				<span class="mui-icon ">
+					<i class="iconfont icon-ai-message"></i>
+				</span>
+				<span class="mui-tab-label">消息</span>
+			</a>
+			<a class="mui-tab-item" href="home.html">
+				<span class="mui-icon iconfont icon-cangku2"></span>
+				<span class="mui-tab-label">质量</span>
+			</a>
+			<a class="mui-tab-item" href="kanban.html">
+				<span class="mui-icon">
+					<i class="iconfont icon-tongji3"></i>
+				</span>
+				<span class="mui-tab-label">报表</span>
+			</a>
+			<a class="mui-tab-item" href="mine.html">
+				<span class="mui-icon iconfont icon-yonghuming3"></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+		</nav>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script>
+			
+			mui.init({
+				
+			});
+			
+			
+			var navTitle;//当前title
+			var mainWebview;//当前webview
+			var curBarItemWebview;
+			
+			var barItemWebviewArray = [];
+			var barItemArray = ['smsIndex.html','home.html','kanban.html','mine.html'];
+			
+			mui.plusReady(function () {
+				//仅支持竖屏显示
+				plus.screen.lockOrientation("portrait-primary");
+				//初始化页面
+				//获取当前title和当前webview
+				navTitle=document.querySelector(".mui-title");
+				mainWebview=plus.webview.currentWebview();
+				
+				//初始化页面
+				initWebView();
+				
+				//判断是否登录,若没有登录,则预加载登录页面
+				checkLogin();
+				
+				
+				//退出系统应用
+				var backButtonPress = 0;
+				mui.back = function(event) {
+					backButtonPress++;
+					if (backButtonPress > 1) {
+						plus.runtime.quit();
+					} else {
+						plus.nativeUI.toast('再按一次将退出应用');
+					}
+					setTimeout(function() {
+						backButtonPress = 0;
+					}, 1000);
+					return false;
+				};
+				
+			});
+			
+			//初始化页面
+			function initWebView(){
+				//初始化所有选项卡页面
+				initTabItemWebView();
+				//添加bar点击事件
+				addBarTapEvent();
+			}
+			
+			//初始化所有选项卡页面
+			function initTabItemWebView(){
+				for (var i = 0; i < barItemArray.length; i++) {
+					barItemWebviewArray[i] = mui.preload({
+						id:barItemArray[i],
+						url:barItemArray[i],
+						styles:{
+							top:'44px',
+							bottom: '51px',
+							left: '0px',
+							bounce: 'vertical',
+							bounceBackground: '#f8f8f8'
+						},
+						waiting:{
+							autoShow:false
+						}
+					});
+					barItemWebviewArray[i].hide();
+					mainWebview.append(barItemWebviewArray[i]);
+				}
+				barItemWebviewArray[0].show();
+				curBarItemWebview = barItemWebviewArray[0];
+			}
+			
+			//添加bar点击事件
+			function addBarTapEvent(){
+				mui('.mui-bar-tab').on('tap','.mui-tab-item',function(){
+					var baritem = this;
+					var baritemurl = baritem.getAttribute('href'); 
+					if (!~curBarItemWebview.getURL().indexOf(baritemurl)) {
+						for (var i = 0; i < barItemArray.length; i++) {
+							if (barItemArray[i] == baritemurl) {
+								//更改头部名字
+								navTitle.innerText = baritem.children[baritem.children.length-1].innerText;
+								//切换baritemwebview
+								barItemWebviewArray[i].show();
+								curBarItemWebview = barItemWebviewArray[i];
+								break;
+							}
+						}
+					}
+				});
+			}
+			
+			//判断是否登录
+			function checkLogin(){
+				var state = app.getState();
+				if(!state.isLogin){
+					mui.preload({
+						url:'login.html',
+						id:'login.html',
+					});
+				}
+			}
+			
+		</script>
+	</body>
+
+</html>

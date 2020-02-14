@@ -1,0 +1,369 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,/* Ann */
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0; padding: 0; border: 0; font: inherit;
+  box-sizing: border-box;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1; width:100%; height:100%;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: ''; content: none;
+}
+table {
+  border-collapse: collapse; border-spacing: 0;
+}
+a{text-decoration:none;}
+a, img {outline: 0 !important;}
+input{
+  box-sizing: border-box;
+}
+
+.clearfix:after {content:"."; display:block; height:0; clear:both; visibility:hidden; overflow: hidden;}
+.clearfix {*+height:1%; }
+
+.attachment{
+  background-position: center 0; 
+  background-repeat: no-repeat; 
+  background-size: cover; 
+  -webkit-background-size: cover; 
+  -o-background-size: cover; 
+  zoom: 1;
+}
+
+.ib{display: inline-block; *display: inline; *zoom: 1;}
+
+.pr{position: relative;}
+.pa{position: absolute;}
+.pf{position: fixed;}
+
+.fl{float: left;}
+.fr{float: right;}
+
+.table{display: table;}
+.table-cell{display: table-cell; vertical-align: middle;}
+
+.block{display: block; max-width: 100%;}
+.inline-block{display: inline-block;}
+
+
+.justify{text-align: justify;}
+.justify_fix, .justify-fix{display:inline-block; width:100%; height:0; overflow:hidden;}
+
+.ellipsis{overflow: hidden; text-overflow:ellipsis; white-space: nowrap;}
+.row-ellipsis{
+  display: -webkit-box !important;    
+  -webkit-box-orient: vertical;    
+  -webkit-line-clamp: 3;    
+  overflow: hidden;
+}
+body{font-family: "microsoft yahei"; font-size: 10.3125vmin; line-height: 1;}
+
+.pw{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.pc-vertical{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.pc-horizontal{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.pc-center{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+
+
+/* 网页部分 */
+/* 登录页 */
+body{
+  position: relative;
+}
+.bg-login {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: -1;
+}
+a.login-config {
+  position: absolute;
+  right: 7.1875vmin;
+  top: 5vmin;
+  font-size: 4.6875vmin;
+  color: #fff;
+  z-index: 1;
+}
+a.login-logo {
+  position: absolute;
+  left: 50%;
+  top: 22.8125vmin;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  color: #fff;
+}
+a.login-logo p{
+  margin-left: 1.875vmin;
+  font-size: 7.1875vmin;
+  line-height: 7.1875vmin;
+  word-break: keep-all;
+}
+a.login-logo img {
+  width: 10vmin;
+}
+.login-container {
+  min-height: 96.5625vmin;
+  padding: 45.625vmin 7.1875vmin 0 7.1875vmin;
+}
+.login-box {
+  border-radius: 4.6875vmin;
+  overflow: hidden;
+  padding: 5.625vmin 6.25vmin 9.6875vmin 6.25vmin;
+  box-shadow: 0 1px 1.71875vmin #ebebeb;
+  background-color: #fff;
+}
+.login-box .lb-group {
+  position: relative;
+  padding: 3.125vmin;
+  border-bottom: 1px solid #f3f3f3;
+}
+.login-box .lb-group input.form-control {
+  display: block;
+  width: 100%;
+  padding: 0 0 0 11.875vmin;
+  border: none;
+  height: 7.03125vmin;
+  font-size: 3.4375vmin;
+  outline: none;
+  line-height: 7.03125vmin;
+}
+.login-box .lb-group .ic {
+  position: absolute;
+  top: 50%;
+  left: 4.6875vmin;
+  transform: translate(-50%, -50%);
+}
+.ic-diamand {
+  width: 5.46875vmin;
+  height: 4.53125vmin;
+  background-image: url("../images/ic-diamand.png");
+}
+.ic-user-circle {
+  width: 4.84375vmin;
+  height: 4.84375vmin;
+  background-image: url("../images/ic-user-circle.png");
+}
+.ic-lock {
+  width: 3.90625vmin;
+  height: 4.84375vmin;
+  background-image: url("../images/ic-lock.png");
+}
+.login-box .lb-auto {
+  padding: 3.75vmin 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.login-box .lb-auto label {
+  font-size: 3.4375vmin;
+  color: #404040;
+}
+.switch {
+  position: relative;
+  height: 6.875vmin;
+  width: 16.5625vmin;
+  border-radius: 3.4375vmin;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  box-shadow: 0 0.3125vmin 1.5625vmin rgba(0,0,0,0.2);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -moz-user-focus: none;
+  -moz-user-select: none;
+}
+.switch.on {
+  background-color: #4cd864;
+}
+.switch:before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6.875vmin;
+  height: 6.875vmin;
+  border-radius: 50%;
+  content: "";
+  background-color: #fff;
+  box-shadow: 0 0.3125vmin 1.5625vmin rgba(0,0,0,0.4);
+  transition: all 1s;
+}
+.switch.on:before {
+  left: initial;
+  right: 0;
+}
+.switch span {
+  display: block;
+  padding: 0 1.875vmin;
+  font-size: 2.8125vmin;
+  line-height: 6.875vmin;
+}
+.switch span.on {
+  display: none;
+  padding-left: 2.8125vmin;
+  color: #fff;
+  text-align: left;
+}
+.switch.on span.on {
+  display: block;
+}
+.switch span.off {
+  color: #000;
+  text-align: right;
+}
+.switch.on span.off {
+  display: none;
+}
+.login-box .lb-btns {
+  padding: 2.5vmin 0;
+}
+.login-box .lb-btns button {
+  display: block;
+  border-radius: 5.625vmin;
+  margin-bottom: 2.8125vmin;
+  width: 100%;
+  font-size: 3.4375vmin;
+  height: 11.25vmin;
+  outline: none;
+  overflow: hidden;
+}
+.login-box .lb-btns button.login {
+  color: #fff;
+  border: 0.3125vmin solid #02a685;
+  background-color: #02a685;
+}
+.login-box .lb-btns button.register {
+  color: #02a685;
+  background-color: #fff;
+  border: 0.3125vmin solid #02a685;
+}
+.login-box .lb-btns button:last-child {
+  margin-bottom: 0;
+}
+.login-box .lb-others {
+  margin-top: 1.875vmin;
+  text-align: center;
+}
+.login-box .lb-others a {
+  display: inline-block;
+  margin: 0 1.875vmin;
+}
+.login-box .lb-others a p {
+  margin-top: 1.25vmin;
+  font-size: 2.8125vmin;
+  color: #a9b8c7;
+}
+.login-box .lb-others a .circle {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin: 0 auto;
+  width: 9.0625vmin;
+  height: 9.0625vmin;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 4.375vmin;
+}
+.login-box .lb-others a.tiyan .circle {
+  background-color: #fbbb31;
+}
+.login-box .lb-others a.lianxi .circle {
+  background-color: #00baef;
+}
+.tech-support {
+  position: absolute;
+  left: 0;
+  bottom: 1.875vmin;
+  width: 100%;
+  font-size: 2.5vmin;
+  color: #02a685;
+  text-align: center;
+}
+
+/* 首页 */
+.index-menus {
+  padding: 2.5vmin 3.125vmin;
+  background-color: #ffffff;
+}
+.index-menus p.im-title {
+  padding: 0 1.25vmin;
+  font-size: 4.4vmin;
+  color: #000003;
+  font-weight: 800; 
+}
+.index-menus ul {
+  margin-top: 5vmin;
+}
+.index-menus ul li {
+  float: left;
+  width: 25%;
+  margin-bottom: 4.6875vmin;
+  text-align: center;
+}
+.index-menus ul li a {
+  display: inline-block;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -moz-user-focus: none;
+  -moz-user-select: none;
+}
+.index-menus ul li a span.icon {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 15vmin;
+  height: 15vmin;
+  border-radius: 3.125vmin;
+  font-size: 6.25vmin;
+  color: #fff;
+  /* background-color: #00baef; */
+}
+.index-menus ul li a p {
+  margin-top: 2.5vmin;
+  font-size: 3.125vmin;
+  color: #000003;
+}
+

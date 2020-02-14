@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body class="">
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">异常重工登记簿</h1>
+		</header>
+		
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<form class="mui-input-group">
+							<div class="mui-input-row">
+								<label>品名：</label>
+								<input type="text" id="goodsName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>料号：</label>
+								<input type="text" id="custMaNo"  readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>IPQC：</label>
+								<input type="text" id="QCUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>机台：</label>
+								<input type="text" id="stationName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>异常描述：</label>
+								<input type="text" id="defectTypeNames"  placeholder="可多选" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>反馈时间：</label>
+								<input type="text" id="happenTime"  placeholder=""  readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>批量数：</label>
+								<input class="mui-input-numbox"  id="batchNum" type="number" readonly="readonly"/>
+							</div>
+							<div class="mui-input-row">
+								<label>抽样数量：</label>
+								<input class="mui-input-numbox"  id="checkNum" type="number" readonly="readonly"/>
+							</div>
+							<div class="mui-input-row">
+								<label>抽样不良数：</label>
+								<input class="mui-input-numbox"  id="checkNGNum" type="number" readonly="readonly"/>
+							</div>
+							<div class="mui-input-row">
+								<label>合格数：</label>
+								<input class="mui-input-numbox"  id="okNum" type="number" readonly="readonly"/>
+							</div>
+							<div class="mui-input-row">
+								<label>不合格数：</label>
+								<input class="mui-input-numbox"  id="ngNum" type="number" readonly="readonly"/>
+							</div>
+							<div class="mui-input-row">
+								<label>签收人：</label>
+								<input type="text" id="confirmUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>签收时间：</label>
+								<input type="text" id="confirmTime"  placeholder=""  readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>结果判定：</label>
+								<select id="decideResault" placeholder="111" class="mui-btn-block" style="">
+									<option value='OK'>OK</option>
+									<option value='NG'>NG</option>
+								</select>
+								<a href="javascript:void(0)" class="mui-navigate-right"></a>
+							</div>
+							<div class="mui-input-row" style="height: 5px;"></div>
+						</form>
+							<div class="mui-input-row" style="margin: 10px 5px;">
+								&nbsp;&nbsp;&nbsp;备注：
+								<textarea id="memo" rows="2" placeholder="" readonly="readonly"></textarea>
+							</div>
+
+					</div>
+				</div>
+			</div>
+			<div id="expenseContent">	
+			</div>			
+			<div class="mui-button-row" id="saveBtn" style="margin-bottom: 10px;margin-top: 20px;">
+				<button class='mui-btn mui-btn-primary mui-icon iconfont icon-baocun4' type='button' onclick='save()'>&nbsp;结案</button>
+				<button class='mui-btn mui-btn-success mui-icon iconfont icon-fujian' type='button' onclick='file()'>&nbsp;附件</button>
+			</div>			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var files=[];
+			var codeRuleState="";
+			var num=0;
+			var clSize=0;
+			var fySize=0;
+			var rrIdTag="";
+			mui.init({
+				
+			});
+			mui.plusReady(function () {
+				initWorkInfo();//加载单据表头信息
+			});
+			
+			//初始化表头信息
+			function initWorkInfo(){				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var rrId=currentWebView.rrId;
+				rrIdTag=rrId;
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				var infoUrl=mesUrl+"reworkRecordFindById.do";
+				mui.ajax(infoUrl,{
+					data:{rrId:rrId},
+					type:"post",
+					success:function(data){
+						var obj=JSON.parse(data);
+						document.getElementById("happenTime").value=obj.happenTime;
+						document.getElementById("defectTypeNames").value=obj.defectTypeNames;
+						document.getElementById("memo").value=obj.memo;
+						document.getElementById("goodsName").value=obj.goodsName;
+						document.getElementById("custMaNo").value=obj.custMaNo;
+						document.getElementById("stationName").value=(obj.stationName == null) ? "" : obj.stationName;
+						document.getElementById("QCUserName").value=obj.QCUserName;
+						document.getElementById("confirmUserName").value=obj.confirmUserName;
+						document.getElementById("confirmTime").value=obj.confirmTime;
+						
+						document.getElementById("batchNum").value=obj.batchNum;
+						document.getElementById("okNum").value=obj.okNum;
+						document.getElementById("ngNum").value=obj.ngNum;
+						
+						document.getElementById("checkNum").value=obj.checkNum;
+						document.getElementById("checkNGNum").value=obj.checkNGNum;
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			//结案
+			function save(){
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;				
+
+				
+				var saveUrl=mesUrl+"updateReworkEnd.do";
+				var batchNum=document.getElementById("batchNum").value;
+				var okNum=document.getElementById("okNum").value;
+				var ngNum=document.getElementById("ngNum").value;
+				
+				var decideResault=document.getElementById("decideResault").value;
+				
+				// if(batchNum<=0){
+				// 	plus.nativeUI.alert("批次数量必须大于0！");
+				// 	return;
+				// }
+				
+				// if(okNum<0){
+				// 	plus.nativeUI.alert("合格数量必须大于等于0！");
+				// 	return;
+				// }
+				
+				// if(ngNum<0){
+				// 	plus.nativeUI.alert("合格数量必须大于等于0！");
+				// 	return;
+				// }
+				
+/* 				if(parseFloat(okNum)+parseFloat(ngNum)>parseFloat(batchNum)){
+					plus.nativeUI.alert("批次数量必须大于等于合格和不合格累计数量！");
+					return;
+				} */
+				//return;
+				var wait=plus.nativeUI.showWaiting("处理中，请等待...");
+				var task = plus.uploader.createUpload(saveUrl, 
+					{ method:"POST"},
+					function ( t, status ) {
+						// 上传完成
+						if ( status == 200 ) {
+							var rtn=JSON.parse(t.responseText); 
+							if(rtn.result=="success"){
+								wait.close();
+								plus.nativeUI.alert("保存成功！");
+								var wobj = plus.webview.getWebviewById("reworkOneList.html");   
+								wobj.reload(true);
+								mui.back();
+							}else{
+								wait.close();
+								plus.nativeUI.alert("保存失败，"+rtn.errmsg);
+							}
+						} else {
+							wait.close();
+							plus.nativeUI.alert("保存失败，"+status);
+						}
+					}
+				);
+				
+				task.addData("endUser",STAFF_ID);
+				task.addData("rrId",rrIdTag);
+				task.addData("decideResault",decideResault);
+				//task.addData("batchNum",batchNum);
+				//task.addData("okNum",okNum);
+				//task.addData("ngNum",ngNum);
+				for(var i=0;i<files.length;i++){
+					var f=files[i];
+					task.addFile(f.path,{key:f.name});
+				}
+				task.start();
+				
+			}
+			//文件查看
+			function file(){
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				mui.openWindow({
+					url:"appFile.html",
+					id:"appFile.html",
+					extras:{
+						tableKeyValue:processCheckListId,
+						tableName:"ZL_exceptionDeal"
+					}
+				});
+			}
+			
+			//点击遮罩
+			function callback(){
+				return false;
+			}
+			
+			
+		</script>
+	</body>
+
+</html>

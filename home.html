@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			.mui-content>.mui-table-view:first-child {
+				margin-top: 0px
+			}
+			
+			.mui-table-view-cell span{
+				color: #02a684;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body class="bodyColor">
+		<div class="mui-content">
+			<ul class="mui-table-view mui-table-view-chevron">
+			</ul>
+			
+			<div id="slider" class="mui-slider" style="height: 280px;">
+				<div class="mui-slider-group mui-slider-loop">
+					<div class="mui-slider-item mui-slider-item-duplicate">
+						<a href="#">
+							<img src="images/yuantiao.jpg">
+						</a>
+					</div>
+					<div class="mui-slider-item">
+						<a href="#">
+							<img src="images/shuijiao.jpg">
+						</a>
+					</div>
+					<div class="mui-slider-item">
+						<a href="#">
+							<img src="images/muwu.jpg">
+						</a>
+					</div>
+					<div class="mui-slider-item">
+						<a href="#">
+							<img src="images/cbd.jpg">
+						</a>
+					</div>
+					<div class="mui-slider-item">
+						<a href="#">
+							<img src="images/yuantiao.jpg">
+						</a>
+					</div>
+					<div class="mui-slider-item mui-slider-item-duplicate">
+						<a href="#">
+							<img src="images/shuijiao.jpg">
+						</a>
+					</div>
+				</div>
+				<div class="mui-slider-indicator">
+					<div class="mui-indicator mui-active"></div>
+					<div class="mui-indicator"></div>
+					<div class="mui-indicator"></div>
+					<div class="mui-indicator"></div>
+				</div>
+			</div>
+			
+			<!--九宫格-->
+			<ul class="mui-table-view mui-grid-view mui-grid-9">
+				<li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+					<a href="processCheckList.html">
+						<span class="mui-icon iconfont icon-dingdanwuliaocaigouruku"></span>
+						<div class="mui-media-body">巡检</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+					<a href="firstCheckList.html">
+						<span class="mui-icon iconfont icon-xiaoshouchuku"></span>
+						<div class="mui-media-body">首检</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+					<a href="lastCheckList.html">
+						<span class="mui-icon iconfont icon-zhilianganquan"></span>
+						<div class="mui-media-body">终检</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+					<a href="exceptionDealList.html">
+						<span class="mui-icon iconfont icon-kucunliang"></span>
+						<div class="mui-media-body">时效追踪单</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+					<a href="reworkIndex.html">
+						<span class="mui-icon iconfont icon-pandian"></span>
+						<div class="mui-media-body">重工签收登记簿</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+					<a href="qualityExceptionIndex.html">
+						<span class="mui-icon iconfont icon-zhiliangbz"></span>
+						<div class="mui-media-body">质量异常处理单</div>
+					</a>
+				</li>
+			</ul>
+			
+			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init({
+				swipeBack:true //启用右滑关闭功能
+			});
+			
+			var gridWebViewArray = [];
+			var gridHtmlArray = ['produceTask.html','goodsScan.html'];
+			
+			mui.plusReady(function () {
+			    var slider = mui("#slider");
+			    slider.slider({
+			    	interval: 5000,
+			    });
+				
+				//初始化页面
+				initWebView();
+				
+			})
+			
+			//初始化页面
+			function initWebView(){
+				//初始化所有的九宫格页面
+				//initGridWebView();
+				//添加九宫格的点击事件
+				addCellTapEvent();
+			}
+			
+			//预加载页面
+			/* function initGridWebView(){
+				for (var i = 0; i < gridHtmlArray.length; i++) {
+					gridWebViewArray[i] = mui.preload({
+						id:gridHtmlArray[i],
+						url:gridHtmlArray[i],
+						waiting:{
+							autoShow:false
+						}
+					});
+				}
+			} */
+			
+			//九宫格的点击事件
+			function addCellTapEvent(){
+				mui('.mui-grid-view').on('tap','.mui-table-view-cell a',function(){
+					var gridUrl = this.getAttribute('href'); 
+					
+					/*
+					for (var i = 0; i < gridHtmlArray.length; i++) {
+						if (gridHtmlArray[i] == gridUrl) {
+							gridWebViewArray[i].show();
+							break;
+						}
+					}
+					*/
+					
+					//不预加载,每次点击查询
+					mui.openWindow({
+						url:gridUrl,
+						id:gridUrl
+					});
+					
+				});
+			}
+			
+		</script>
+	</body>
+
+</html>

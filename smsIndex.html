@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			*{margin: 0; padding: 0;}
+			
+			* ul li{list-style: none;}
+			
+			.ellipsis{
+			  overflow: hidden;
+			  text-overflow:ellipsis;
+			  white-space: nowrap;
+			}
+			
+			.flow-list{
+			  box-sizing: border-box;
+			}
+			.flow-list ul li a{
+			  display: block;
+			  position: relative;
+			  text-decoration: none;
+			}
+			.flow-list ul li a .time-right-top{
+			  position: absolute;
+			  top: 2.8125vmin;
+			  right: 3.75vmin;
+			  font-size: 3.5vmin;
+			  color: #bcbcbc;
+			}
+			.flow-list ul li a .status-right-bottom{
+			  position: absolute;
+			  bottom: 3.125vmin;
+			  right: 3.75vmin;
+			  font-size: 3.5vmin;
+			  color: #bcbcbc;
+			}
+			.flow-list ul li a .status-right-bottom.green{
+			  color: #00b10a;
+			}
+			.flow-list ul li a .status-right-bottom.yellow{
+			  color: #ff6d00;
+			}
+			.flow-list ul li a .status-right-bottom.red{
+			  color: #ff0101;
+			}
+			.flow-list ul li a .ic-left{
+			  position: absolute;
+			  top: 50%;
+			  left: 3.75vmin;
+			  transform: translateY(-50%);
+			  width: 11.875vmin;
+			  height: 11.875vmin;
+			  border-radius: 50%;
+			  font-size: 5.625vmin;
+			  text-align: center;
+			  color: #fff;
+			  line-height: 11.875vmin;
+			  background-color: #3396fb;
+			  overflow: hidden;
+			}
+			
+			.flow-list ul li a .ic-left i{
+			  font-size: 5vmin;
+			}
+			
+			.flow-list ul li a .ic-left.green{
+			  background-color: #18bb84;
+			}
+			
+			.flow-list ul li a .ic-left.saleLead{
+			  background-color: #FF6666;
+			}
+			
+			.flow-list ul li a .ic-left.BXSP{
+			  background-color: #3AC0FE;
+			}
+			
+			.flow-list ul li a .ic-left.taskBack{
+			  background-color: #FFC322;
+			}
+			
+			.flow-list ul li a .ic-left.taskCheck{
+			  background-color: #77CE4D;
+			}
+			
+			.flow-list ul li a .info-right{
+			  margin-left: 17.8125vmin;
+			  padding: 3.125vmin 0 3.125vmin 0.9375vmin;
+			  border-bottom: 1px solid #f1f1f1;
+			}
+			.flow-list ul li a .info-right h1{
+			  font-size: 4vmin;
+			  color: #091016;
+			  font-weight: 500;
+			  margin-bottom: 1.5625vmin;
+			}
+			.flow-list ul li a .info-right p{
+			  width: 54.6875vmin;
+			  font-size: 3.5vmin;
+			  color: #a6a7ab;
+			  font-weight: 500;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body style="background-color: #ffffff;">
+		<div class="mui-content" >
+			<div class="flow-list">
+			    <ul id="smsContent" style="background-color: #ffffff;" >
+			        
+			    </ul>
+		    </div>
+		</div>
+			
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			
+			var tag=0;
+			var totalPage=0;//总页数
+			var page=1;//当前页
+			var pageSize=10;//每页数据10条
+			
+			mui.init({
+				pullRefresh: {
+					container: '#smsContent',
+					down: {
+						style: 'circle',
+						color:'#02a684',
+						offset: '0px',
+						auto: false,
+						callback: pulldownRefresh
+					},
+					up: {
+						contentrefresh: '正在加载...',
+						callback: pullupRefresh
+					}
+				}
+			});
+			
+			mui.plusReady(function () {
+				pullupRefresh();
+			});
+			
+			/**
+			 * 下拉刷新数据
+			 */
+			function pulldownRefresh(){
+				var wobj = plus.webview.getWebviewById("smsIndex.html");   
+				wobj.reload(true);
+				
+			}
+			
+			/**
+			 * 上拉加载分页数据
+			 */
+			function pullupRefresh(){
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var smsUrl=mesUrl+"smsMy.do";
+				
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;
+				if(tag==1){
+					if(parseFloat(page)<parseFloat(totalPage)){
+						page=parseInt(page)+1;
+					}else{
+						mui('#smsContent').pullRefresh().endPullupToRefresh();
+						return;
+					}
+				}
+				mui.ajax(smsUrl,{
+					data:{
+						STAFF_ID:STAFF_ID,
+						page:page,
+						rows:pageSize,
+						isRead:0
+					},
+					type:"post",
+					success:function(data){
+						mui('#smsContent').pullRefresh().endPullupToRefresh();
+						
+						if(data)
+						{
+							tag=1;
+							
+							var smsContent=document.getElementById("smsContent");
+							var cardHtml="";
+							var data=JSON.parse(data);
+							
+							if(data.total%pageSize==0){
+								totalPage=parseInt(data.total/pageSize);
+							}else{
+								totalPage=parseInt(data.total/pageSize)+1;
+							}
+							
+							var colorName="";
+							var iconName="";
+							var iconColor="";
+							var typeName="";
+							var sendTime="";
+							var title="";
+							
+							mui.each(data.rows,function (index,obj) {
+								if(obj.isRead=="true"){
+									stateName="已阅";
+									colorName="green";
+								}else{
+									stateName="未阅";
+									colorName="red";
+								}
+								
+								if(obj.type=="task"){
+									iconName="icon-renwuguanli";
+									iconColor="green";
+								}
+								if(obj.type=="sms"){
+									iconName="icon-xiaoxi8";
+									iconColor="";
+								}
+								
+								if(obj.type=="saleLeads"){
+									iconName="icon-xiansuogenjin";
+									iconColor="saleLead";
+								}
+								
+								if(obj.type=="BXSP"){
+									iconName="icon-baoxiao1";
+									iconColor="BXSP";
+								}
+								
+								if(obj.type=="taskBack"){
+									iconName="icon-fanhui4";
+									iconColor="taskBack";
+								}
+								
+								if(obj.type=="taskCheck"){
+									iconName="icon-icon-inspect";
+									iconColor="taskCheck";
+								}
+								
+								if(obj.type=="taskNoCheck"){
+									iconName="icon-fanhui1";
+									iconColor="saleLead";
+								}
+								
+								
+								sendTime=obj.sendTime;
+								sendTime=sendTime.substring(0,10);
+								
+								title=obj.title;
+								if(title==""){
+									if(obj.type=="task"){
+										title="新任务";
+									}
+									if(obj.type=="sms"){
+										title="新消息";
+									}
+									if(obj.type=="saleLeads"){
+										title="销售线索";
+									}
+									if(obj.type=="BXSP"){
+										title="报销";
+									}
+									if(obj.type=="taskBack"){
+										title="任务退回";
+									}
+									if(obj.type=="taskCheck"){
+										title="任务验收";
+									}
+									if(obj.type=="taskNoCheck"){
+										title="任务不验收";
+									}
+								}
+								
+								var liDiv=document.createElement('li');
+								liDiv.className="liClass";
+								liDiv.id=obj.smsId+"@@@@@@"+obj.type+"@@@@@@"+obj.keyValue;
+								
+								var liHtml="";
+								liHtml="<a href='#'>"+
+											"<div class='ic-left "+iconColor+"'><i class='iconfont "+iconName+"'></i></div>"+
+			            					"<div class='info-right'>"+
+			        							"<h1>"+obj.fromUserName+"</h1>"+
+			              						"<p class='ellipsis'>"+title+"</p>"+
+			            					"</div>"+
+			            					"<span class='time-right-top'>"+sendTime+"</span>"+
+			            					"<span class='status-right-bottom "+colorName+"'>"+stateName+"</span>"+
+			          					"</a>";
+			          			liDiv.innerHTML=liHtml;
+								smsContent.appendChild(liDiv);
+							});
+							
+							initButtonTapEvent();
+						}
+						
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			
+			var taskIdTag="";
+			var receiveOrNo="";
+			
+			//添加button的点击事件
+			function initButtonTapEvent(){
+				mui('.flow-list').on('tap','.liClass',function(){
+					var id=this.getAttribute('id');
+					var arrayData=id.split("@@@@@@");
+					var smsId = arrayData[0];
+					var type = arrayData[1];
+					var keyValue = arrayData[2];
+					mui.openWindow({
+						url:"smsInfo.html",
+						id:"smsInfo.html",
+						extras:{
+							smsId:smsId
+						}
+					});
+					
+					
+				});
+				
+			}
+			
+		</script>
+	</body>
+
+</html>

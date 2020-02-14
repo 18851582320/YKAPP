@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+		</style>
+		
+	</head>
+
+	<body class="">
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<a class="mui-action-menu mui-btn mui-btn-link mui-pull-right" onclick="queryData()" style="color: #ffffff;">筛选</a>
+			<h1 class="mui-title" style="color: #ffffff;">人员选择</h1>
+		</header>
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<ul class="mui-table-view" id="userContent">
+							
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			
+			var staffName="";
+			
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+				initStaff();//初始化人员信息
+			});
+			
+			
+			//初始化人员信息
+			function initStaff(){
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var staffUrl=mesUrl+"staffInfo.do";
+				mui.ajax(staffUrl,{
+					data:{STAFF_ID:staffId,NAME:staffName},
+					type:"post",
+					success:function(data){
+						
+						var userContent=document.getElementById("userContent");
+						userContent.innerHTML="";
+						
+						var data=JSON.parse(data);
+						
+						mui.each(data,function (index,obj) {
+							var liObj = document.createElement('li');
+							liObj.className="mui-table-view-cell mui-radio mui-left";
+							liObj.id=obj.STAFF_ID+"@@@@@@"+obj.NAME;
+							var liHtml="";
+							liHtml="<input name='userName' class='userNameClass' type='radio' id='"+obj.STAFF_ID+"' value='"+obj.NAME+"'>"+obj.NAME+"";
+							
+							liObj.innerHTML=liHtml;
+							userContent.appendChild(liObj);
+							
+						});
+						
+						
+						initTapEvent();
+						
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+			}
+			
+			
+			
+			//添加点击事件
+			function initTapEvent(){
+				
+				mui('.mui-table-view').on('tap','.mui-table-view-cell',function(){
+					var STAFF_IDTag = this.getAttribute('id');
+					if(STAFF_IDTag){
+						
+						var arrData=STAFF_IDTag.split("@@@@@@");
+						var STAFF_ID=arrData[0];
+						var NAME=arrData[1];
+						
+						var currentWebView=plus.webview.currentWebview();
+						var htmlTag=currentWebView.htmlTag;
+						var methodTag=currentWebView.methodTag;
+						var	queryHtml=plus.webview.getWebviewById(htmlTag+".html");
+						queryHtml.evalJS("setUserInfoOne('"+ STAFF_ID +"','"+NAME+"','"+methodTag+"');");
+						mui.back();
+					}
+				});
+				
+			}
+			
+			function queryData(){
+				mui.openWindow({
+					url:"selectUserOneQuery.html",
+					id:"selectUserOneQuery.html",
+					extras:{
+						htmlTag:"selectUserOne",
+					}
+				});
+			}
+			
+			
+			function setQueryInfo(staffNameTag){
+				staffName=staffNameTag;
+				initStaff();
+			}
+			
+			
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body class="">
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">质量异常处理单详细</h1>
+		</header>
+		
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<form class="mui-input-group">
+							<div class="mui-input-row">
+								<label>客户：</label>
+								<input type="text" id="customerName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>品名：</label>
+								<input type="hidden" id="goodsId"  placeholder="">
+								<input type="text" id="goodsName"  placeholder="" readonly="readonly">
+							</div>
+<!-- 							<div class="mui-input-row">
+								<label>料号：</label>
+								<input type="text" id="custMaNo"  readonly="readonly" placeholder="">
+							</div> -->
+							<div class="mui-input-row">
+								<label>检验员：</label>
+								<input type="text" id="QCUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>检验主管：</label>
+								<input type="text" id="QCLeaderUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>制造日期：</label>
+								<input type="text" id="produceTime" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>检验数：</label>
+								<input class="mui-input-numbox"  id="checkNum" type="number" readonly="readonly" />
+							</div>
+							<div class="mui-input-row">
+								<label>不合格数：</label>
+								<input class="mui-input-numbox"  id="ngNum" type="number"readonly="readonly"  />
+							</div>
+							<div class="mui-input-row">
+								<label>不良来源：</label>
+								<input type="text" id="exceptionSource" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>不良原因描述：</label>
+								<textarea id="memo"  placeholder="" readonly="readonly"></textarea>
+							</div>
+							
+							<div class="mui-input-row">
+								<label>接收人：</label>
+								<input type="text" id="receiveUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>接收主管：</label>
+								<input type="text" id="receiveLeaderUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>接收日期：</label>
+								<input type="text" id="receiveTime" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>原因分析：</label>
+								<input type="text" id="reasonAnalysis"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>暂时对策：</label>
+								<input type="text" id="nowPlan"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>永久对策：</label>
+								<input type="text" id="foreverPlan"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>结案人员：</label>
+								<input type="text" id="confirmUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>结案主管：</label>
+								<input type="text" id="confirmLeaderUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>接收日期：</label>
+								<input type="text" id="confirmTime" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row" style="height: 1px;"></div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div id="expenseContent">	
+			</div>			
+			<div class="mui-button-row" id="saveBtn" style="margin-bottom: 10px;margin-top: 20px;">
+				<button class='mui-btn mui-btn-success mui-icon iconfont icon-fujian' type='button' onclick='file()'>&nbsp;附件</button>
+			</div>			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var files=[];
+			var codeRuleState="";
+			var num=0;
+			var clSize=0;
+			var fySize=0;
+			var qeIdTag="";
+			mui.init({
+				
+			});
+			mui.plusReady(function () {
+				initWorkInfo();//加载单据表头信息
+				initCurUser();//当前检验人员
+				
+				//QC
+				document.getElementById("confirmLeaderUserName").addEventListener('tap', function() {
+					mui.openWindow({
+						url:"selectUserOne.html",
+						id:"selectUserOne.html",
+						extras:{
+							htmlTag:"qualityExceptionEdit",
+							methodTag:"confirmLeaderUser"
+						}
+					});
+				})
+			});
+			
+			//初始化表头信息
+			function initWorkInfo(){				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var qeId=currentWebView.qeId;
+				qeIdTag=qeId;
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				var infoUrl=mesUrl+"qualityExceptionById.do";
+				mui.ajax(infoUrl,{
+					data:{qeId:qeId},
+					type:"post",
+					success:function(data){
+						var obj=JSON.parse(data);
+						document.getElementById("customerName").value=obj.customerName;
+						document.getElementById("goodsName").value=obj.goodsName;
+						//document.getElementById("custMaNo").value=obj.custMaNo;
+						document.getElementById("QCUserName").value=obj.QCUserName;
+						document.getElementById("QCLeaderUserName").value=obj.QCLeaderUserName;
+						document.getElementById("produceTime").value=obj.produceTime;
+						document.getElementById("checkNum").value=obj.checkNum;
+						document.getElementById("ngNum").value=obj.ngNum;
+						document.getElementById("exceptionSource").value=obj.exceptionSource;
+						document.getElementById("memo").value=obj.memo;
+						
+						document.getElementById("receiveUserName").value=obj.receiveUserName;
+						document.getElementById("receiveLeaderUserName").value=obj.receiveLeaderUserName;
+						document.getElementById("receiveTime").value=obj.receiveTime;
+						document.getElementById("reasonAnalysis").value=obj.reasonAnalysis;
+						document.getElementById("nowPlan").value=obj.nowPlan;
+						document.getElementById("foreverPlan").value=obj.foreverPlan;
+						
+						document.getElementById("confirmUserName").value=obj.confirmUserName;
+						document.getElementById("confirmLeaderUserName").value=obj.confirmLeaderUserName;
+						document.getElementById("confirmTime").value=obj.confirmTime;
+						
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			function initCurUser(){
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;
+				var loginname=state.loginname;
+				document.getElementById("confirmUser").value=STAFF_ID;
+				document.getElementById("confirmUserName").value=loginname;
+			}
+			
+			//QC
+			function setUserInfoOne(STAFF_ID,NAME,methodTag){
+				if(methodTag=="confirmLeaderUser"){
+					document.getElementById("confirmLeaderUser").value=STAFF_ID;
+					document.getElementById("confirmLeaderUserName").value=NAME;
+				}
+			}
+			//结案
+			function save(){
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;				
+
+				
+				var saveUrl=mesUrl+"updateQualityExceptionEnd.do";
+				var confirmUser=document.getElementById("confirmUser").value;
+				var confirmLeaderUser=document.getElementById("confirmLeaderUser").value;
+				
+				if(app.checkEmpty(confirmLeaderUser)){
+					plus.nativeUI.alert("主管人员不能为空！");
+					return;
+				}
+				var wait=plus.nativeUI.showWaiting("处理中，请等待...");
+				var task = plus.uploader.createUpload(saveUrl, 
+					{ method:"POST"},
+					function ( t, status ) {
+						// 上传完成
+						if ( status == 200 ) {
+							var rtn=JSON.parse(t.responseText); 
+							if(rtn.result=="success"){
+								wait.close();
+								plus.nativeUI.alert("保存成功！");
+								var wobj = plus.webview.getWebviewById("qualityExceptionOneList.html");   
+								wobj.reload(true);
+								mui.back();
+							}else{
+								wait.close();
+								plus.nativeUI.alert("保存失败，"+rtn.errmsg);
+							}
+						} else {
+							wait.close();
+							plus.nativeUI.alert("保存失败，"+status);
+						}
+					}
+				);
+				task.addData("qeId",qeIdTag);
+				task.addData("confirmUser",confirmUser);
+				task.addData("confirmLeaderUser",confirmLeaderUser);
+				for(var i=0;i<files.length;i++){
+					var f=files[i];
+					task.addFile(f.path,{key:f.name});
+				}
+				task.start();
+				
+			}
+			//文件查看
+			function file(){
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				mui.openWindow({
+					url:"appFile.html",
+					id:"appFile.html",
+					extras:{
+						tableKeyValue:processCheckListId,
+						tableName:"ZL_exceptionDeal"
+					}
+				});
+			}
+			
+			//点击遮罩
+			function callback(){
+				return false;
+			}
+			
+			
+		</script>
+	</body>
+
+</html>

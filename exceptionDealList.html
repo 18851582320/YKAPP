@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.addReportImg{
+				position: fixed;
+				right: 15px;
+				bottom: 15px;
+				z-index: 10000000;
+				width: 50px;
+				height: 50px;
+				line-height: 50px;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body>
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<a class="mui-action-menu mui-btn mui-btn-link mui-pull-right" onclick="queryData()" style="color: #ffffff;">筛选</a>
+			<h1 class="mui-title" style="color: #ffffff;">异常处理时效追踪单</h1>
+		</header>
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<ul class="mui-table-view mui-table-view-chevron" id="saleActReceiveContent" >
+					
+				</ul>
+			</div>
+			
+		</div>
+		<img class="addReportImg" src="images/add2.png" onclick="addSaleActReceive()">
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var tag=0;
+			var totalPage=0;//总页数
+			var page=1;//当前页
+			var pageSize=15;//每页数据15条
+			
+			var customerId ="";
+			var saleActualReceivableTime="";
+			var saleActualReceivableTime2="";
+			
+			mui.init({
+				pullRefresh: {
+					container: '#saleActReceiveContent',
+					down: {
+						style: 'circle',
+						color:'#02a684',
+						offset: '0px',
+						auto: false,
+						callback: pulldownRefresh
+					},
+					up: {
+						contentrefresh: '正在加载...',
+						callback: pullupRefresh
+					}
+				}
+			});
+			
+			mui.plusReady(function () {
+				pullupRefresh();
+			});
+			
+			/**
+			 * 下拉刷新数据
+			 */
+			function pulldownRefresh(){
+				var wobj = plus.webview.getWebviewById("exceptionDealList.html");   
+				wobj.reload(true);
+				
+			}
+			
+			
+			/**
+			 * 上拉加载分页数据
+			 */
+			function pullupRefresh(){
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var saleActReceiveUrl=mesUrl+"exceptionDealList.do";
+				
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				
+				if(tag==1){
+					if(parseFloat(page)<parseFloat(totalPage)){
+						page=parseInt(page)+1;
+					}else{
+						mui('#saleActReceiveContent').pullRefresh().endPullupToRefresh();
+						return;
+					}
+				}
+
+				
+				mui.ajax(saleActReceiveUrl,{
+					data:{
+						page:page,
+						rows:pageSize,
+						customerId:customerId,
+						saleActualReceivableTime:saleActualReceivableTime,
+						saleActualReceivableTime2:saleActualReceivableTime
+					},
+					type:"post",
+					success:function(data){
+						mui('#saleActReceiveContent').pullRefresh().endPullupToRefresh();
+						
+						if(data){
+							tag=1;
+							var saleActReceiveContent=document.getElementById("saleActReceiveContent");
+							var data=JSON.parse(data);
+							
+							if(data.total%pageSize==0){
+								totalPage=parseInt(data.total/pageSize);
+							}else{
+								totalPage=parseInt(data.total/pageSize)+1;
+							}
+							
+							
+							mui.each(data.rows,function (index,obj) {
+								
+								var liObj = document.createElement('li');
+								liObj.className="mui-table-view-cell mui-media";
+								liObj.id=obj.edId;
+								var excDate = obj.excDate.substring("0","10");
+								var liHtml=""; 
+								liHtml="<a id="+obj.edId+" class='mui-navigate-right'>"
+											+"<div class='mui-media-body nameClass' id="+obj.edId+" >"
+												+"机台："+obj.stationName+"<br>"
+												+"品名："+obj.goodsName+"&nbsp;&nbsp;料号："+obj.custMaNo+"<br>"
+												+"状态："+obj.dstate+"<br>"
+												+"<p class='mui-ellipsis'>"
+												+"日期："+excDate+"&nbsp;&nbsp;检验员："+obj.IPQCUserName+"</p>"
+											+"</div>"
+										+"</a>";
+								
+								liObj.innerHTML=liHtml;
+								saleActReceiveContent.appendChild(liObj);
+								
+								
+							});
+							
+							initTapEvent();
+							
+						}
+						
+						
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			
+			
+			//添加点击事件
+			function initTapEvent(){
+				
+				mui('.mui-table-view').on('tap','.mui-navigate-right',function(){
+					var edId = this.getAttribute('id');
+					mui.openWindow({
+						url:"exceptionDealShow.html",
+						id:"exceptionDealShow.html",
+						extras:{
+							edId:edId
+						}
+					});
+					
+				});
+				
+			}
+			
+			function queryData(){
+				mui.openWindow({
+					url:"saleActReceiveQuery.html",
+					id:"saleActReceiveQuery.html",
+					extras:{
+						
+					}
+				});
+			}
+			
+			function setQueryInfo(customerIdTag,saleActualReceivableTimeTag,saleActualReceivableTime2Tag){
+				customerId=customerIdTag;
+				saleActualReceivableTime=saleActualReceivableTimeTag;
+				saleActualReceivableTime2=saleActualReceivableTime2Tag;
+				
+				tag=0;
+				totalPage=0;//总页数
+				page=1;//当前页
+				
+				document.getElementById("saleActReceiveContent").innerHTML="";
+				
+				pullupRefresh();
+			}
+			
+			function addSaleActReceive(){
+				mui.openWindow({
+					url:"exceptionDeal.html",
+					id:"exceptionDeal.html",
+					extras:{
+						
+					}
+				});
+			}
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.addReportImg{
+				position: fixed;
+				right: 15px;
+				bottom: 15px;
+				z-index: 10000000;
+				width: 50px;
+				height: 50px;
+				line-height: 50px;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body>
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<ul class="mui-table-view mui-table-view-chevron" id="saleNeedReceiveContent" >
+					
+				</ul>
+			</div>
+			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var tag=0;
+			var totalPage=0;//总页数
+			var page=1;//当前页
+			var pageSize=15;//每页数据15条
+			
+			var customerId = "";
+			var saleAccountReceivableTime = "";
+			var saleAccountReceivableTime2 = "";
+			
+			mui.init({
+				pullRefresh: {
+					container: '#saleNeedReceiveContent',
+					down: {
+						style: 'circle',
+						color:'#02a684',
+						offset: '0px',
+						auto: false,
+						callback: pulldownRefresh
+					},
+					up: {
+						contentrefresh: '正在加载...',
+						callback: pullupRefresh
+					}
+				}
+			});
+			
+			mui.plusReady(function () {
+				pullupRefresh();
+			});
+			
+			/**
+			 * 下拉刷新数据
+			 */
+			function pulldownRefresh(){
+				var wobj = plus.webview.getWebviewById("reworkTwoList.html");   
+				wobj.reload(true);
+				
+			}
+			
+			
+			/**
+			 * 上拉加载分页数据
+			 */
+			function pullupRefresh(){
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var saleNeedReceiveUrl=mesUrl+"reworkRecordList.do";
+				
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				if(tag==1){
+					if(parseFloat(page)<parseFloat(totalPage)){
+						page=parseInt(page)+1;
+					}else{
+						mui('#saleNeedReceiveContent').pullRefresh().endPullupToRefresh();
+						return;
+					}
+				}
+
+				
+				mui.ajax(saleNeedReceiveUrl,{
+					data:{
+						STAFF_ID:staffId,
+						recordState:0,
+						checkTypeCode:"03",//巡检
+						page:page,
+						rows:pageSize,
+						saleAccountReceivableTime:saleAccountReceivableTime,
+						saleAccountReceivableTime2:saleAccountReceivableTime2
+					},
+					type:"post",
+					success:function(data){
+						mui('#saleNeedReceiveContent').pullRefresh().endPullupToRefresh();
+						
+						if(data){
+							tag=1;
+							var saleNeedReceiveContent=document.getElementById("saleNeedReceiveContent");
+							var data=JSON.parse(data);
+							
+							if(data.total%pageSize==0){
+								totalPage=parseInt(data.total/pageSize);
+							}else{
+								totalPage=parseInt(data.total/pageSize)+1;
+							}
+							
+							
+							mui.each(data.rows,function (index,obj) {
+								
+								var liObj = document.createElement('li');
+								liObj.className="mui-table-view-cell mui-media";
+								liObj.id=obj.rrId;
+								var liHtml=""; 
+								liHtml="<a id="+obj.rrId+" class='mui-navigate-right'>"
+											+"<div class='mui-media-body nameClass' id="+obj.rrId+" >"
+												+"品名："+obj.goodsName+"&nbsp;&nbsp;料号："+obj.custMaNo+"<br>"
+												+"状态："+obj.dstate+"<br>"
+												+"<p class='mui-ellipsis'>"
+												+"日期："+obj.happenTime+"&nbsp;&nbsp;检验员："+obj.QCUserName+"</p>"
+											+"</div>"
+										+"</a>";
+								liObj.innerHTML=liHtml;
+								saleNeedReceiveContent.appendChild(liObj);
+								
+								
+							});
+							
+							initTapEvent();
+							
+						}
+						
+						
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			
+			
+			//添加点击事件
+			function initTapEvent(){
+				
+				mui('.mui-table-view').on('tap','.mui-navigate-right',function(){
+					var rrId = this.getAttribute('id');
+					mui.openWindow({
+						url:"reworkShow.html",
+						id:"reworkShow.html",
+						extras:{
+							rrId:rrId
+						}
+					});
+					
+				});
+				
+			}
+			
+			function setQueryInfo(customerIdTag,saleAccountReceivableTimeTag,saleAccountReceivableTime2Tag,queryState){
+				customerId=customerIdTag;
+				saleAccountReceivableTime=saleAccountReceivableTime;
+				saleAccountReceivableTime2=saleAccountReceivableTime2Tag;
+				
+				tag=0;
+				totalPage=0;//总页数
+				page=1;//当前页
+				
+				document.getElementById("saleNeedReceiveContent").innerHTML="";
+				
+				pullupRefresh();
+			}
+			
+			function addRework(){
+				mui.openWindow({
+					url:"reworkAdd.html",
+					id:"reworkAdd.html",
+					extras:{
+						
+					}
+				});
+			}
+		</script>
+	</body>
+
+</html>

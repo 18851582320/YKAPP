@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body class="">
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">异常处理时效追踪单</h1>
+		</header>
+		
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<form class="mui-input-group">
+							<div class="mui-input-row">
+								<label>日期：</label>
+								<input type="text" id="excDate" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>机台：</label>
+								<input type="hidden" id="stationId"  placeholder="">
+								<input type="text" id="stationName"  placeholder="" readonly="readonly">
+							</div>
+
+							<div class="mui-input-row">
+								<label>品名：</label>
+								<input type="hidden" id="goodsId"  placeholder="">
+								<input type="text" id="goodsName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>料号：</label>
+								<input type="text" id="custMaNo"  readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>IPQC：</label>
+								<input type="hidden" id="IPQCUserId"  placeholder="">
+								<input type="text" id="IPQCUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>模号：</label>
+								<input type="text" id="mouldNum"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>异常描述：</label>
+								<input type="hidden" id="defectTypeIds"  placeholder="">
+								<input type="text" id="defectTypeNames"  placeholder="可多选" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>反馈时间：</label>
+								<input type="text" id="happenTime"  placeholder="" readonly="readonly">
+							</div>
+							
+							<div class="mui-input-row" style="margin: 10px 5px;">
+								&nbsp;&nbsp;&nbsp;备注：
+								<textarea id="memo" rows="2" placeholder="" readonly="readonly"></textarea>
+							</div>
+							<div class="mui-input-row">
+								<label>接收人员：</label>
+								<input type="text" id="confirmUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>接收时间：</label>
+								<input type="text" id="confirmTime"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>处理结果：</label>
+								<input type="text" id="dealResault"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row" style="height: 5px;"></div>
+						</form>
+	
+			
+					</div>
+					
+				</div>
+			</div>
+			<div id="expenseContent">	
+			</div>			
+			<div class="mui-button-row" id="saveBtn" style="margin-bottom: 10px;margin-top: 20px;">
+				<button class='mui-btn mui-btn-success mui-icon iconfont icon-fujian' type='button' onclick='file()'>&nbsp;附件</button>
+			</div>			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var files=[];
+			var codeRuleState="";
+			var num=0;
+			var clSize=0;
+			var fySize=0;
+			var processCheckItemIdStr="";
+			mui.init({
+				
+			});
+			mui.plusReady(function () {
+				initWorkInfo();//加载单据表头信息
+			});
+			
+			//初始化表头信息
+			function initWorkInfo(){				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var edId=currentWebView.edId;
+				var state = app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var infoUrl=mesUrl+"exceptionDealFindById.do";
+				mui.ajax(infoUrl,{
+					data:{edId:edId},
+					type:"post",
+					success:function(data){
+						var obj=JSON.parse(data);
+						document.getElementById("excDate").value=obj.excDate.substring("0","10");
+						document.getElementById("mouldNum").value=obj.mouldNum;
+						document.getElementById("happenTime").value=obj.happenTime;
+						document.getElementById("defectTypeNames").value=obj.defectTypeNames;
+						document.getElementById("memo").value=obj.memo;
+						document.getElementById("goodsName").value=obj.goodsName;
+						document.getElementById("custMaNo").value=obj.custMaNo;
+						document.getElementById("stationName").value=obj.stationName;
+						document.getElementById("IPQCUserName").value=obj.IPQCUserName;
+						
+						document.getElementById("confirmUserName").value=(obj.confirmUserName == null) ? "" : obj.confirmUserName;
+						document.getElementById("confirmTime").value=(obj.confirmTime == null) ? "" : obj.confirmTime;
+						document.getElementById("dealResault").value=(obj.dealResault == null) ? "" : obj.dealResault;
+
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			
+			//文件查看
+			function file(){
+				var currentWebView=plus.webview.currentWebview();
+				var processCheckListId=currentWebView.processCheckListId;
+				mui.openWindow({
+					url:"appFile.html",
+					id:"appFile.html",
+					extras:{
+						tableKeyValue:processCheckListId,
+						tableName:"ZL_exceptionDeal"
+					}
+				});
+			}
+			
+			//点击遮罩
+			function callback(){
+				return false;
+			}
+			
+			
+		</script>
+	</body>
+
+</html>

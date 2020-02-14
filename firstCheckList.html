@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			.mui-segmented-control .mui-control-item {
+				line-height: 30px;
+				display: table-cell;
+				overflow: hidden;
+				width: 1%;
+				-webkit-transition: background-color .1s linear;
+				transition: background-color .1s linear;
+				text-align: center;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				color: #007aff;
+				border-color: #007aff;
+				border-left: 1px solid #007aff
+			}
+			
+			
+			.mui-segmented-control-seaBlue {
+				border: 1px solid #02a684
+			}
+			
+			.mui-segmented-control-seaBlue .mui-control-item {
+				color: #02a684;
+				border-color: inherit
+			}
+			
+			.mui-segmented-control-seaBlue .mui-control-item.mui-active {
+				color: #fff;
+				background-color: #02a684
+			}
+			
+			.mui-segmented-control-seaBlue.mui-segmented-control-inverted .mui-control-item.mui-active {
+				color: #02a684;
+				border-bottom: 2px solid #02a684;
+				background: 0 0
+			}
+			
+			.mui-segmented-control-seaBlue.mui-segmented-control-inverted~.mui-slider-progress-bar {
+				background-color: #02a684
+			}
+			
+			.mui-scroll{
+				height: 60px;
+			}
+			
+			
+		</style>
+		
+	</head>
+
+	<body>
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">首检</h1>
+		</header>
+		
+		<div class="mui-content">
+			<div style="padding:3px 10px 3px 10px;">
+				<div id="segmentedControl" class="mui-segmented-control mui-segmented-control-seaBlue">
+					<a class="mui-control-item mui-active" href="firstCheckNoEnd.html" data-wid="firstCheckNoEnd.html">未检</a>
+					<a class="mui-control-item" href="firstCheckEnd.html" data-wid="firstCheckEnd.html">已检验</a>
+				</div>
+			</div>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/webviewGroup.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var queryState="0";//筛选状态：0：未下达   1：已下达
+			var clickState="0";//区分标签点击与滑动；0：滑动   1：标签
+		
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+				
+				//mui('.mui-slider').slider().stopped = true;
+				
+				var _self = plus.webview.currentWebview();
+				var group = new webviewGroup(_self.id, {
+					items: [{
+						id: "firstCheckNoEnd.html",
+						url: "firstCheckNoEnd.html",
+						extras: {}
+					}, {
+						id: "firstCheckEnd.html",
+						url: "firstCheckEnd.html",
+						extras: {}
+					}],
+					onChange: function(obj) {
+						var c = document.querySelector(".mui-control-item.mui-active");
+						if(c) {
+							c.classList.remove("mui-active");
+							var a = c.toString().lastIndexOf("\/");
+							var b = c.toString().lastIndexOf(".");
+							var d = c.toString().substring(a+1,b);
+							if(clickState=="0"){
+								if(d=="firstCheckEnd"){
+									queryState="1";
+								}else{
+									queryState="0";
+								}
+							}else{
+								if(d=="firstCheckEnd"){
+									queryState="1";
+								}else{
+									queryState="0";
+								}
+							}
+							clickState="0";
+						}
+						var target = document.querySelector(".mui-segmented-control .mui-control-item:nth-child(" + (parseInt(obj.index) + 1) + ")");
+						target.classList.add("mui-active");
+						if(target.scrollIntoView) {
+							target.scrollIntoView();
+						}
+					}
+				});
+				
+				
+				mui(".mui-segmented-control").on("tap", ".mui-control-item", function(e) {
+					var wid = this.getAttribute("data-wid");
+					clickState="1";
+					group.switchTab(wid);
+				});
+			});
+			
+			function queryData(){
+				mui.openWindow({
+					url:"saleNeedReceiveQuery.html",
+					id:"saleNeedReceiveQuery.html",
+					extras:{
+						queryState:queryState
+					}
+				});
+			}
+			
+			mui.back = function() {
+				var _self = plus.webview.currentWebview();
+				_self.close("auto");
+			}
+			
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+		</style>
+		
+	</head>
+
+	<body class="">
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<a class="mui-action-menu mui-btn mui-btn-link mui-pull-right" onclick="queryData()" style="color: #ffffff;">筛选</a>
+			<h1 class="mui-title" style="color: #ffffff;">物料选择</h1>
+		</header>
+		
+		<div class="mui-content" id="">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<ul class="mui-table-view" id="customerContent">
+							
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			
+			var goodsName="";
+			
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+				initGoods();//初始物料信息
+			});
+			
+			
+			//初始化人员信息
+			function initGoods(){
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var state=app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var queryUrl=mesUrl+"goodsInfo.do";
+				mui.ajax(queryUrl,{
+					data:{STAFF_ID:staffId,goodsName:goodsName},
+					type:"post",
+					success:function(data){
+						
+						var customerContent=document.getElementById("customerContent");
+						customerContent.innerHTML="";
+						
+						var data=JSON.parse(data);
+						
+						mui.each(data,function (index,obj) {
+							var liObj = document.createElement('li');
+							liObj.className="mui-table-view-cell mui-radio mui-left";
+							liObj.id=obj.goodsId+"@@@@@@"+obj.goodsName+"@@@@@@"+obj.custMaNo;
+							var liHtml="";
+							liHtml="<input name='goodsName' class='goodsNameClass' type='radio' id='"+obj.goodsId+"' value='"+obj.goodsName+"'>"+obj.goodsName+"";
+							
+							liObj.innerHTML=liHtml;
+							customerContent.appendChild(liObj);
+							
+						});
+						
+						
+						initTapEvent();
+						
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+			}
+			
+			
+			
+			//添加点击事件
+			function initTapEvent(){
+				
+				mui('.mui-table-view').on('tap','.mui-table-view-cell',function(){
+					var customerIdTag = this.getAttribute('id');
+					if(customerIdTag){
+						var arrData=customerIdTag.split("@@@@@@");
+						var goodsId=arrData[0];
+						var goodsName=arrData[1];
+						var custMaNo=arrData[2];
+						var currentWebView=plus.webview.currentWebview();
+						var htmlTag=currentWebView.htmlTag;
+						var methodTag=currentWebView.methodTag;
+						var	queryHtml=plus.webview.getWebviewById(htmlTag+".html");
+						queryHtml.evalJS("setGoodsOne('"+ goodsId +"','"+goodsName+"','"+custMaNo+"','"+methodTag+"');");
+						mui.back();
+					}
+				});
+				
+			}
+			
+			function queryData(){
+				mui.openWindow({
+					url:"selectGoodsOneQuery.html",
+					id:"selectGoodsOneQuery.html",
+					extras:{
+						htmlTag:"selectGoodsOne",
+					}
+				});
+			}
+			
+			
+			function setQueryInfo(goodsNameTag){
+				goodsName=goodsNameTag;
+				initGoods();
+			}
+			
+			
+		</script>
+	</body>
+
+</html>

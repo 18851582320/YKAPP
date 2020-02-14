@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html class="ui-page-login">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="css/login.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		<style>
+			
+			.ic-diamand {
+			  width: 5.46875vmin;
+			  height: 4.53125vmin;
+			  background-image: url("images/ip.png");
+			}
+			.ic-user-circle {
+			  width: 4.84375vmin;
+			  height: 4.84375vmin;
+			  background-image: url("images/port.png");
+			}
+			
+		</style>
+
+
+	</head>
+
+	<body>
+		
+		<a href="#" class="login-logo">
+			<p>服务器配置</p>
+		</a>
+		<img src="images/bg-login.png" alt="" class="bg-login">
+		<div class="login-container">
+			<div class="login-box">
+				<div class="lb-group">
+					<i class="ic ic-diamand attachment"></i>
+					<input type="text" id="severName" class="form-control"  placeholder="服务器地址:222.93.39.55">
+				</div>
+				<div class="lb-group">
+					<i class="ic ic-user-circle attachment"></i>
+					<input type="text" id="severPort" class="form-control" placeholder="端口号:8872">
+				</div>
+				<div class="lb-btns" style="margin-top: 6vmin;">
+					<button class="login" onclick="savePepsSet()">确  定</button>
+				</div>
+			</div>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/mui.enterfocus.js"></script>
+		<script src="js/app.js"></script>
+		<script> 
+			
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+			    
+				var PEPSServer= app.getPEPSServer();
+				var severName=PEPSServer.severName;
+				var severPort=PEPSServer.severPort;
+				if(!app.checkEmpty(severName)){
+					document.getElementById("severName").value=severName;
+					document.getElementById("severPort").value=severPort;
+				}
+				
+			});
+			
+			function savePepsSet(){
+				var severName=document.getElementById("severName").value;
+				var severPort=document.getElementById("severPort").value;
+				if(app.checkEmpty(severName)){
+					plus.nativeUI.alert("服务器地址不能为空！");
+					return;
+				}
+				if(app.checkEmpty(severPort)){
+					plus.nativeUI.alert("端口号不能为空！");
+					return;
+				}
+				
+				
+				app.createPEPSServer(severName,severPort, function(err) {
+					if (err) {
+						plus.nativeUI.toast(err);
+						return;
+					}else{
+						mui.back();
+					}
+				});
+			}
+			
+
+		</script>
+	</body>
+
+</html>

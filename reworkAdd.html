@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+			
+			
+		</style>
+		
+	</head>
+
+	<body class="">
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">异常重工登记簿录入</h1>
+		</header>
+		
+		
+		<div class="mui-content" id="taskContent">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<form class="mui-input-group">
+							<div class="mui-input-row">
+								<label>品名：</label>
+								<input type="hidden" id="goodsId"  placeholder="">
+								<input type="text" id="goodsName"  placeholder="" readonly="readonly">
+								<a href="javascript:void(0)" class="mui-navigate-right"></a>
+							</div>
+							<div class="mui-input-row">
+								<label>料号：</label>
+								<input type="text" id="custMaNo"  readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>机台：</label>
+								<input type="hidden" id="stationId"  placeholder="">
+								<input type="text" id="stationName"  placeholder="" readonly="readonly">
+								<a href="javascript:void(0)" class="mui-navigate-right"></a>
+							</div>
+							<div class="mui-input-row">
+								<label>QC：</label>
+								<input type="hidden" id="QCUser"  placeholder="">
+								<input type="text" id="QCUserName"  placeholder="" readonly="readonly">
+							</div>
+							<div class="mui-input-row">
+								<label>不良现象：</label>
+								<input type="hidden" id="defectTypeIds"  placeholder="">
+								<input type="text" id="defectTypeNames"  placeholder="可多选" readonly="readonly">
+								<a href="javascript:void(0)" class="mui-navigate-right"></a>
+							</div>
+							<div class="mui-input-row">
+								<label>批量数：</label>
+								<input class="mui-input-numbox"  id="batchNum" type="number" />
+							</div>
+							<div class="mui-input-row">
+								<label>抽样数量：</label>
+								<input class="mui-input-numbox"  id="checkNum" type="number" />
+							</div>
+							<div class="mui-input-row">
+								<label>抽样不良数：</label>
+								<input class="mui-input-numbox"  id="checkNGNum" type="number" />
+							</div>
+							<div class="mui-input-row" style="text-align: left;">
+								<label>附&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;件：</label>
+								<span class="mui-icon iconfont icon-xiangce1" onclick="appendByGallery()"></span>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<span class="mui-icon iconfont icon-xiangji2" onclick="appendByCamera()"></span>
+							</div>
+						</form>
+						
+						<div class="mui-input-row">
+							<ul id="files" style="text-align:left;">
+								<p id="empty" style="font-size:12px;color:#C6C6C6;">无上传文件</p>
+							</ul>
+						</div>
+						<div class="mui-input-row" style="margin: 10px 5px;">
+							备注：
+							<textarea id="memo" rows="6" placeholder=""></textarea>
+						</div>
+						<div class="mui-button-row" id="saveBtn">
+							<button class='mui-btn mui-btn-primary mui-icon iconfont icon-baocun4' type='button' onclick='save()'>&nbsp;保存</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			var files=[];
+			var defectTypeIdsTag="";
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+				initCurUser();//当前检验人员
+
+				
+				var curDate=new Date();
+				var curMonth=curDate.getMonth()+1;
+				var curDay=curDate.getDate();
+				
+				if(curMonth>=1 && curMonth<=9){
+					curMonth="0"+curMonth;
+				}
+				if(curDay>=1 && curDay<=9){
+					curDay="0"+curDay;
+				}
+				
+				//物料选择
+				document.getElementById("goodsName").addEventListener('tap', function() {
+					mui.openWindow({
+						url:"selectGoodsOne.html",
+						id:"selectGoodsOne.html",
+						extras:{
+							htmlTag:"reworkAdd",
+							methodTag:"goods"
+						}
+					});
+				})
+				
+				//QC
+/* 				document.getElementById("QCUserName").addEventListener('tap', function() {
+					mui.openWindow({
+						url:"selectUserOne.html",
+						id:"selectUserOne.html",
+						extras:{
+							htmlTag:"reworkAdd",
+							methodTag:"QC"
+						}
+					});
+				}) */
+				
+				//工位选择
+				document.getElementById("stationName").addEventListener('tap', function() {
+					mui.openWindow({
+						url:"selectStationOne.html",
+						id:"selectStationOne.html",
+						extras:{
+							htmlTag:"reworkAdd",
+							methodTag:"station"
+						}
+					});
+				})
+				
+				//异常描述
+				document.getElementById("defectTypeNames").addEventListener('tap', function() {
+					mui.openWindow({
+						url:"defectSelect.html",
+						id:"defectSelect.html",
+						extras:{
+							htmlTag:"reworkAdd"
+						}
+					});
+				})
+			});
+			
+			
+			//工位
+			function setStationOne(stationId,stationName,methodTag){
+				if(methodTag=="station"){
+					document.getElementById("stationId").value=stationId;
+					document.getElementById("stationName").value=stationName;
+				}
+			}
+			
+			//QC
+			function setUserInfoOne(STAFF_ID,NAME,methodTag){
+				if(methodTag=="QC"){
+					document.getElementById("QCUser").value=STAFF_ID;
+					document.getElementById("QCUserName").value=NAME;
+				}
+			}
+			
+			//物料
+			function setGoodsOne(goodsId,goodsName,custMaNo,methodTag){
+				if(methodTag=="goods"){
+					document.getElementById("goodsId").value=goodsId;
+					document.getElementById("goodsName").value=goodsName;
+					document.getElementById("custMaNo").value=custMaNo;
+				}
+			}
+			//缺陷选择
+			function setDefectName(defectTypeIds,defectTypeNames){
+				document.getElementById("defectTypeNames").value=defectTypeNames;
+				defectTypeIdsTag=defectTypeIds;
+			}
+			
+			function initCurUser(){				
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;
+				var loginname=state.loginname;
+				document.getElementById("QCUser").value=STAFF_ID;
+				document.getElementById("QCUserName").value=loginname;
+			}
+			
+			
+			//保存
+			function save(){
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				var state = app.getState();
+				var STAFF_ID=state.STAFF_ID;
+				
+				var saveUrl=mesUrl+"reworkRecordSave.do";
+				var stationId=document.getElementById("stationId").value;
+				var goodsId=document.getElementById("goodsId").value;
+				var QCUser=document.getElementById("QCUser").value;
+				var defectTypeNames=document.getElementById("defectTypeNames").value;
+				var memo=document.getElementById("memo").value;
+				var batchNum=document.getElementById("batchNum").value;
+				var checkNum=document.getElementById("checkNum").value;
+				var checkNGNum=document.getElementById("checkNGNum").value;
+				
+				if(app.checkEmpty(goodsId)){
+					plus.nativeUI.alert("品名不能为空！");
+					return;
+				}
+				
+				
+				if(app.checkEmpty(defectTypeNames)){
+					plus.nativeUI.alert("不良现象不能为空！");
+					return;
+				}
+				
+				if(batchNum<=0){
+					plus.nativeUI.alert("批次数量必须大于0！");
+					return;
+				}
+				
+				if(checkNum<=0){
+					plus.nativeUI.alert("抽样数量必须大于0！");
+					return;
+				}
+				
+				if(checkNGNum<0){
+					plus.nativeUI.alert("不良数量必须大于0！");
+					return;
+				}
+				
+				var wait=plus.nativeUI.showWaiting("处理中，请等待...");
+				
+				
+				var task = plus.uploader.createUpload(saveUrl, 
+					{ method:"POST"},
+					function ( t, status ) {
+						// 上传完成
+						if ( status == 200 ) {
+							var rtn=JSON.parse(t.responseText); 
+							if(rtn.result=="success"){
+								wait.close();
+								plus.nativeUI.alert("保存成功！");
+								var wobj = plus.webview.getWebviewById("reworkOneList.html");   
+								wobj.reload(true);
+								mui.back();
+							}else{
+								wait.close();
+								plus.nativeUI.alert("保存失败，"+rtn.errmsg);
+							}
+						} else {
+							wait.close();
+							plus.nativeUI.alert("保存失败，"+status);
+						}
+					}
+				);
+				
+				task.addData("STAFF_ID",STAFF_ID);
+				task.addData("stationId",stationId);
+				task.addData("goodsId",goodsId);
+				task.addData("QCUser",QCUser);
+				task.addData("defectTypeIds",defectTypeIdsTag);
+				task.addData("defectTypeNames",defectTypeNames);
+				task.addData("batchNum",batchNum);
+				task.addData("checkNum",checkNum);
+				task.addData("checkNGNum",checkNGNum);
+				task.addData("memo",memo);
+				
+				for(var i=0;i<files.length;i++){
+					var f=files[i];
+					task.addFile(f.path,{key:f.name});
+				}
+				task.start();
+				
+			}
+			
+			// 从相册添加文件
+			function appendByGallery(){
+				plus.gallery.pick(function(p){
+			        appendFile(p);
+			    });
+			}
+			
+			// 拍照添加文件
+			function appendByCamera(){
+				var cmr = plus.camera.getCamera();
+				var res = cmr.supportedImageResolutions[0];
+				var fmt = cmr.supportedImageFormats[0];
+				cmr.captureImage( function( p ){
+						appendFile(p);
+					},
+					function( error ) {
+						
+					},
+					{resolution:res,format:fmt}
+				);
+				
+				
+			}
+			
+			// 添加文件
+			var index=1;
+			function appendFile(p){
+				var fe=document.getElementById("files");
+				var li=document.createElement("li");
+				var n=p.substr(p.lastIndexOf('/')+1);
+				li.innerText=n;
+				fe.appendChild(li);
+				files.push({name:"uploadkey"+index,path:p});
+				index++;
+				empty.style.display="none";
+			}
+			
+		</script>
+	</body>
+
+</html>

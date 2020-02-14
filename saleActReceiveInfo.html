@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			.mui-backdrop {
+			    position: fixed;
+			    top: 0;
+			    right: 0;
+			    bottom: 0;
+			    left: 0;
+			    z-index: 998;
+			    background-color: rgba(0,0,0,.3);
+			}
+			
+			.mui-input-row span{
+				color: #02a684;font-size: 20px;margin-top: 8px;
+			}
+			.mui-input-row input{
+				font-size:14px;
+			}			
+		</style>
+		
+	</head>
+
+	<body class="">
+		
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<a class="mui-action-menu mui-btn mui-btn-link mui-pull-right" onclick="del()" style="color: #ffffff;">删除</a>
+			<h1 class="mui-title" style="color: #ffffff;">销售实收信息</h1>
+		</header>
+		
+		
+		<div class="mui-content" id="taskContent">
+			<div class="mui-card">
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						<form class="mui-input-group">
+							<div class="mui-input-row">
+								<label>应收款名称：</label>
+								<input type="text" id="saleAccountReceivableName" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>合同名称：</label>
+								<input type="text" id="conName" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>客户名称：</label>
+								<input type="text" id="customerName" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>实收金额(元)：</label>
+								<input type="text" id="saleActualReceivableMoney" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>实收时间：</label>
+								<input type="text" id="saleActualReceivableTime" readonly="readonly" placeholder="">
+							</div>
+							<div class="mui-input-row">
+								<label>实收人员：</label>
+								<input type="text" id="saleActualReceivableUserName" readonly="readonly" placeholder="">
+							</div>
+						</form>
+						<div class="mui-button-row" id="saveBtn">
+							
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+				initWorkInfo();
+			});
+			
+			//初始化类型和
+			function initWorkInfo(){
+				
+				var pepsUrl=app.getPepsUrl();
+				if(app.checkEmpty(pepsUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var currentWebView=plus.webview.currentWebview();
+				var saleActualReceivableId=currentWebView.saleActualReceivableId;
+				
+				var state=app.getState();
+				var staffId=state.staffId;
+				var companyId=state.companyId;
+				
+				var infoUrl=pepsUrl+"saleActReceiveInfo.do";
+				mui.ajax(infoUrl,{
+					data:{STAFF_ID:staffId,companyId:companyId,saleActualReceivableId:saleActualReceivableId},
+					type:"post",
+					success:function(data){
+						var obj=JSON.parse(data);
+						
+						var ssjine = obj.saleActualReceivableMoney.substring("0",obj.saleActualReceivableMoney.length-4);
+						var ssshij = obj.saleActualReceivableTime.substring("0","10");
+						
+						document.getElementById("saleAccountReceivableName").value=obj.saleAccountReceivableName;
+						document.getElementById("conName").value=obj.conName;
+						document.getElementById("customerName").value=obj.customerName;
+						document.getElementById("saleActualReceivableMoney").value=ssjine;
+						document.getElementById("saleActualReceivableTime").value=ssshij;
+						document.getElementById("saleActualReceivableUserName").value=obj.saleActualReceivableUserName;
+						
+						document.getElementById("saveBtn").innerHTML=
+								"<button class='mui-btn mui-btn-success mui-icon iconfont icon-fujian' type='button' onclick='file()'>&nbsp;附件</button>";
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+			}
+			
+			
+			function file(){
+				var currentWebView=plus.webview.currentWebview();
+				var saleActualReceivableId=currentWebView.saleActualReceivableId;
+				mui.openWindow({
+					url:"appFile.html",
+					id:"appFile.html",
+					extras:{
+						tableKeyValue:saleActualReceivableId,
+						tableName:"AS_saleActualReceivable"
+					}
+				});
+			}
+			
+			function del(){
+				plus.nativeUI.confirm("是否删除？", function(tag) {
+					var pepsUrl=app.getPepsUrl();
+					if(app.checkEmpty(pepsUrl)){
+						plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+						return;
+					}
+					
+					var currentWebView=plus.webview.currentWebview();
+					var saleActualReceivableId=currentWebView.saleActualReceivableId;
+					
+					var state=app.getState();
+					var staffId=state.staffId;
+					var companyId=state.companyId;
+					
+					var infoUrl=pepsUrl+"deleteSaleActReceiveInfo.do";
+					mui.ajax(infoUrl,{
+						data:{STAFF_ID:staffId,companyId:companyId,saleActualReceivableId:saleActualReceivableId},
+						type:"post",
+						success:function(data){
+							var wobj = plus.webview.currentWebview().opener();   
+							wobj.reload(true);
+							mui.back();
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							plus.nativeUI.alert(errorThrown);
+						}
+					});
+				},"提示", ["确定", "取　消"]);
+			}
+			
+			
+		</script>
+	</body>
+</html>

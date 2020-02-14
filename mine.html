@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		<link href="css/index.css" rel="stylesheet" />
+		
+		<style>
+			.mui-table-view {
+				margin-top: 20px;
+			}
+			
+			.mui-table-view span.mui-pull-right {
+				color: #999;
+			}
+			.mui-table-view-divider {
+				background-color: #efeff4;
+				font-size: 14px;
+			}
+			.mui-table-view-divider:before,
+			.mui-table-view-divider:after {
+				height: 0;
+			}
+			
+			#pwdChange{
+				min-width: 282px;
+				height: 200px ;
+				top:50% !important;
+				margin-top: -150px;
+				left: 50% !important;
+				margin-left: -141px;
+			}
+			
+			@media (min-width: 400px){
+				#pwdChange{
+					width: 80%;
+					margin-left: -40%;
+				}
+			}
+			
+			.mui-popover .mui-popover-arrow{
+				display: none !important;
+			}
+			
+		</style>
+		
+	</head>
+
+	<body style="background-color: #f5f5f5;">		
+	<div class="mine-top flex-vertical">
+			<div class="img-box">
+				<img src="images/demo-head.png" >
+			</div>
+			<div class="words">
+				<p class="name">你好</p>
+				<p class='wacc'>账号:<span id="curloginname"></span></p>
+			</div>
+		</div>	
+		<div class="mine-menu">
+			<ul>
+				<li id="changePwd">
+					<a href="#" class="flex-vertical">
+						<div class="img-box flex-center">
+							<img src="images/ic-demo.png" >
+						</div>
+					<div class="words flex-vertical">
+						<p>密码修改</p>
+					</div>
+				</li>
+				<li id="updateVersion">
+					<a href="#" class="flex-vertical">
+						<div class="img-box flex-center">
+							<img src="images/ic-demo-1.png" >
+						</div>
+						<div class="words flex-vertical">
+							<p>下载最新版本</p>
+						</div>
+					</a>
+				</li>
+				<li id="share">
+					<a href="#" class="flex-vertical">
+						<div class="img-box flex-center">
+							<img src="images/ic-demo-2.png" >
+						</div>
+						<div class="words flex-vertical">
+							<p>分享推荐</p>
+						</div>
+					</a>
+				</li>
+				<li id="tel">
+					<a href="#" class="flex-vertical">
+						<div class="img-box flex-center">
+							<img src="images/ic-demo-3.png" >
+						</div>
+						<div class="words flex-vertical">
+							<p>客服电话</p>
+						</div>
+					</a>
+				</li>
+				<li id="bindWeiXin">
+					<a href="#" class="flex-vertical">
+						<div class="img-box flex-center">
+							<img src="images/ic-demo-4.png" >
+						</div>
+						<div class="words flex-vertical">
+							<p>微信绑定</p>
+						</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<!--<ul class="mui-table-view mui-table-view-chevron">
+			<li class="mui-table-view-cell">
+				<a href="#about" class="mui-navigate-right">关于海宝</a>
+			</li>
+		</ul>-->
+		<div class="mine-exit">
+			<a href="#" class="btn-exit" id="exit">退出</a>
+		</div>
+		
+		<div id="pwdChange" class="mui-popover">
+			<div class="mui-popover-arrow"></div>
+			<div class="mui-content-padded">
+				<h4 id="title" style="text-align: center;margin-top: 20px;">密码修改</h4>
+				<form class="mui-input-group" style="margin-top: 30px;">
+					<div class="mui-input-row">
+						<label>密码：</label>
+						<input type="text" class="mui-input-clear" id="newPwd" placeholder="请输入">
+					</div>
+				</form>
+				<div id="add_div" class="operate" style="text-align: center;margin-top: 30px;">
+					<button type="button" class="mui-btn mui-btn-blue" id="savePwdChange">确定</button>
+				</div>
+			</div>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+			     
+				//var curloginname=document.getElementById("curloginname");
+				var state = app.getState();
+				//console.log(JSON.stringify(state));
+				var loginname=state.loginname;
+				
+				curloginname.innerText=loginname;
+				 
+				 //退出操作******************
+				document.getElementById('exit').addEventListener('tap', function() {
+					if (mui.os.ios) {
+						app.setState({});
+						mui.openWindow({
+							url: 'login.html',
+							id: 'login.html',
+							show: {
+								aniShow: 'pop-in'
+							},
+							waiting: {
+								autoShow: false
+							}
+						});
+						return;
+					}
+					var btnArray = [{
+						title: "注销当前账号"
+					}, {
+						title: "直接关闭应用"
+					}];
+					plus.nativeUI.actionSheet({
+						cancel: "取消",
+						buttons: btnArray
+					}, function(event) {
+						var index = event.index;
+						switch (index) {
+							case 1:
+								//注销账号
+								app.setState({});
+								plus.webview.getLaunchWebview().show("pop-in");
+								break;
+							case 2:
+								plus.runtime.quit();
+								break;
+						}
+					});
+				}, false);
+				
+				
+				//检查更新
+				document.getElementById("updateVersion").addEventListener('tap', function() {
+					var checkUrl = app.mesUrl+"checkAppUpdate.do"; 
+					var uploadUrl=app.mesUrl+"downApp.do";
+					
+					
+					var appid=plus.runtime.appid;
+					var version=plus.runtime.version;
+					var imei=plus.device.imei;
+					var uuid=plus.device.uuid;
+					
+					mui.ajax(checkUrl,{
+						data:{appid:appid,version:version,imei:imei,uuid:uuid},
+						type:"post",
+						success:function(data){
+							var data=eval("("+data+")");
+							
+							if(data.result=="success"){
+								plus.nativeUI.confirm("是否立即更新新版本？", function(tag) {
+									if (0 == tag.index) {
+										plus.runtime.openURL(uploadUrl);
+									}
+								},"提示", ["立即更新", "取　消"]);
+							}else{
+								mui.toast('已是最新版本~')
+							}
+							
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							plus.nativeUI.alert(errorThrown);
+						}
+					});
+					
+				});
+				
+				//弹出密码修改
+				document.getElementById("changePwd").addEventListener('tap',function () {
+					mui("#pwdChange").popover("toggle");
+				});
+				
+				//保存密码修改
+				document.getElementById("savePwdChange").addEventListener('tap',function () {
+					var newPwd=document.getElementById("newPwd").value;
+					
+					if(app.checkEmpty(newPwd)){
+						plus.nativeUI.alert("密码不能为空！");
+						return;
+					}
+					
+					var changePwdUrl = app.mesUrl+"changePwd.do";
+					var state = app.getState();
+					var loginname=state.loginname;
+					
+					mui.ajax(changePwdUrl,{
+						data:{loginname:loginname,newPwd:newPwd},
+						type:"post",
+						success:function(data){
+							var data=eval("("+data+")");
+							if(data.result=="success"){
+								mui.toast('修改成功')
+								mui("#pwdChange").popover("toggle");
+								
+								document.getElementById("newPwd").value="";
+								//注销账号
+								app.setState({});
+								plus.webview.getLaunchWebview().show("pop-in");
+								
+							}else{
+								mui.toast(data.errmsg);
+							}
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							plus.nativeUI.alert(errorThrown);
+						}
+					});
+					
+				});
+				
+				
+				//取消密码修改
+				document.getElementById("cancel").addEventListener('tap',function () {
+					mui('#pwdChange').popover('hide');
+				});
+				
+			})
+			
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<link href="css/iconfont.css" rel="stylesheet" />
+		
+		<style>
+			
+			textarea{
+				font-size: 14px;
+			}
+			
+			p img {
+		        max-width: 100%;
+		        height: auto;
+		    }
+		      
+		    .mui-content>.mui-table-view:first-child {
+		        margin-top: 0;
+		    }
+		      
+		    body,
+		    .mui-content {
+		        background-color: #FFFFFF;
+		    }
+		    
+		    .pTitle{
+		    	text-align: center;
+		    	color: #02a684;
+		    	font-weight: bold;
+		    }
+			
+		</style>
+		
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav body-header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" style="color: #ffffff;">附件</h1>
+		</header>
+		
+	    <div class="mui-content">
+  			<div class="mui-content-padded" id="fileContent">
+	      	</div>
+	    </div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			
+			
+			mui.init({
+				
+			});
+			
+			mui.plusReady(function () {
+				initFile();
+			});
+			
+			
+			function initFile(){
+				var currentWebView=plus.webview.currentWebview();
+				var tableKeyValue=currentWebView.tableKeyValue;
+				var tableName=currentWebView.tableName;
+				
+				var mesUrl=app.getUrl();
+				if(app.checkEmpty(mesUrl)){
+					plus.nativeUI.alert("服务器地址未获取到，请重新配置！");
+					return;
+				}
+				
+				var state=app.getState();
+				var staffId=state.STAFF_ID;
+				
+				var fileUrl=mesUrl+"appFile.do";
+				mui.ajax(fileUrl,{
+					data:{STAFF_ID:staffId,tableKeyValue:tableKeyValue,tableName:tableName},
+					type:"post",
+					success:function(data){
+						
+						var fileContent=document.getElementById("fileContent");
+						var data=JSON.parse(data);
+						mesUrl=mesUrl.substring(0,mesUrl.length-4);
+						
+						var filePath="";
+						var fileRealName="";
+						var fileName="";
+						var suffixName="";
+						
+						mui.each(data,function (index,obj) {
+							
+							filePath=obj.filePath;
+							fileRealName=obj.fileRealName;
+							fileName=obj.fileName;
+							
+							filePath=mesUrl+filePath+fileRealName;
+							
+							var subTag=fileName.lastIndexOf(".");
+							if(subTag>0){
+								suffixName=fileName.substring(subTag,fileName.length);
+								fileName=fileName.substring(0,subTag);
+							}
+							
+							var pElement = document.createElement('p');
+							pElement.className="pTitle";
+							var pHtml="";
+							pHtml=fileName;
+							pElement.innerHTML=pHtml;
+							fileContent.appendChild(pElement);
+							
+							pElement = document.createElement('p');
+							pHtml="";
+							console.log(filePath)
+							if(suffixName==".bmp" || suffixName==".jpg" || suffixName==".jpeg" || suffixName==".png" || suffixName==".gif" || suffixName==".BMP" || suffixName==".JPG" || suffixName==".JPEG" || suffixName==".PNG" || suffixName==".GIF"){
+								pHtml="<img src='"+filePath+"' class='picture' />";
+							}else if(suffixName==".doc" || suffixName==".docx"){
+								pHtml="<img src='images/wordPic.jpg' class='file' id='"+filePath+"' />";
+							}else if(suffixName==".xls" || suffixName==".xlsx"){
+								pHtml="<img src='images/xlsPic.jpg' class='file' id='"+filePath+"' />";
+							}else if(suffixName==".ppt" || suffixName==".pptx"){
+								pHtml="<img src='images/pptPic.jpg' class='file' id='"+filePath+"' />";
+							}else if(suffixName==".pdf"){
+								pHtml="<img src='images/pdfPic.jpg' class='file' id='"+filePath+"' />";
+							}else{
+								pHtml="<img src='images/filePic.jpg' class='file' id='"+filePath+"' />";
+							}
+							pElement.innerHTML=pHtml;
+							fileContent.appendChild(pElement);
+							
+						});
+						
+						//initButtonTapEvent();
+						
+						initImgTapEvent();
+						
+					},
+					error:function(xhr,type,errorThrown){
+						//异常处理；
+						plus.nativeUI.alert(errorThrown);
+					}
+				});
+				
+				
+			}
+			
+			
+			function initImgTapEvent(){
+				var images = [].slice.call(document.querySelectorAll('.mui-content-padded .picture'));
+			    var urls = [];
+			    images.forEach(function(item) {
+			    	urls.push(item.src);
+			    });
+			    
+			    mui('.mui-content-padded').on('tap', '.picture', function() {
+			        var index = images.indexOf(this);
+			        plus.nativeUI.previewImage(urls, {
+			        	current: index,
+			        	loop: true,
+			        	indicator: 'number'
+			        });
+			    });
+			    
+			   	mui('.mui-content-padded').on('tap', '.file', function() {
+			        var filePath =this.id;
+			        plus.runtime.openURL(filePath);
+			    });
+			    
+			    
+			}
+			
+			
+		</script>
+	</body>
+
+</html>
